@@ -1,0 +1,92 @@
+<h2 matDialogTitle>{{titleDescription}}</h2>
+
+<div mat-dialog-content>
+  @if (data.error.status === 0) {
+    <div>
+      <p>Your session may have expired.</p>
+      <p>
+        Please log in again then retry your action.
+      </p>
+    </div>
+  }
+
+  @if (data.error.status !== 0) {
+    <div>
+
+      @if (data.error?.error?.validationErrors) {
+        <div>
+          <p>Validation failure. Refer to error(s) below.</p>
+          <table>
+            <thead>
+            <tr>
+              <th>Field ID</th>
+              <th>Error message</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (validationError of data.error.error.validationErrors | keyvalue; track validationError) {
+                <tr>
+                  <td>{{validationError.key}}</td>
+                  <td>{{validationError.value}}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (!data.error?.error?.validationErrors) {
+        @switch (data.error.status) {
+          @case ("401") {
+            <div>
+              <p>
+                You are not authenticated. Click <a routerLink="login" (click)="onCloseButton()">here to login</a>.
+                <!-- TODO support url return parameter -->
+              </p>
+            </div>
+          }
+          @case ("403") {
+            <div>
+              <p>
+                You do not have access to this function.
+              </p>
+            </div>
+          }
+          @default {
+
+          }
+        }
+      }
+
+      @if (userMessage) {
+        <p>
+          Error: {{userMessage}}
+        </p>
+      }
+
+      @if (debugMessage) {
+        <p>
+          Debug: {{debugMessage}}
+        </p>
+      }
+
+      @if (traceMessage) {
+        <p>Trace:
+          <span style="white-space: pre-wrap; font-family: monospace;">
+            {{traceMessage}}
+          </span>
+        </p>
+      }
+
+      @if (data.error.error?.errorReference) {
+        <p>
+          Reference: {{data.error.error.errorReference}}
+        </p>
+      }
+    </div>
+  }
+</div>
+
+<div mat-dialog-actions align="end">
+  <button type="button" mat-stroked-button (click)="onCloseButton()">Close</button>
+</div>

@@ -1,0 +1,48 @@
+.loading-indicator {
+  min-width: 170px;
+  display: flex;
+  justify-content: center;
+}
+
+a.button-active {
+  font-weight: bold;
+}
+
+.menu-tree {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.menu-tree-invisible {
+  display: none;
+}
+
+.menu-tree ul,
+.menu-tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+/*
+ * This padding sets alignment of the nested nodes.
+ */
+.menu-tree .mat-nested-tree-node div[role=group] {
+  padding-left: 20px;
+}
+
+/*
+ * Padding for leaf nodes.
+ * Leaf nodes need to have padding so as to align with other non-leaf nodes
+ * under the same parent.
+ */
+.menu-tree div[role=group] > .mat-tree-node {
+  padding-left: 40px;
+}
+.menu-tree div[role=group] > .mat-tree-node:last-of-type {
+  padding-bottom: 10px;
+}
+
+.parent-menu-item:hover {
+  cursor: pointer;
+}

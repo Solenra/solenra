@@ -1,0 +1,35 @@
+services:
+  solenra:
+    image: solenra:latest
+    container_name: solenra
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      # Database properties for web application to connect to postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/solenra
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-solenra}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-supersecret}
+      - SPRING_APPLICATION_JSON={"spring":{"quartz":{"properties":{"org.quartz.jobStore.driverDelegateClass":"org.quartz.impl.jdbcjobstore.PostgreSQLDelegate"}}}}
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    volumes:
+      - ${DB_DATA_LOCATION:-pgdata}:/var/lib/postgresql/data
+    env_file:
+    - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-solenra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecret}
+      POSTGRES_DB: solenra
+
+volumes:
+  pgdata:

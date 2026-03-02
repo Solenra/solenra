@@ -1,0 +1,9 @@
+.system-roi {
+  display: flex;
+  flex-direction: column;
+}
+.system-roi > div, .centered {
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+}

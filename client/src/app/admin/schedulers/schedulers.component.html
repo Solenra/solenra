@@ -1,0 +1,80 @@
+<app-page-header 
+  [title]="'Scheduler Status'">
+
+  @if (schedulersLoading) {
+    <mat-spinner [diameter]="40"></mat-spinner>
+  }
+  @if (!schedulersLoading && !schedulers) {
+    <p>Schedulers not loaded.</p>
+  }
+  @if (!schedulersLoading && schedulers) {
+    <div>
+      @for (scheduler of schedulers; track scheduler) {
+        <mat-divider></mat-divider>
+
+        <h3>{{scheduler.schedulerName}} <span style="font-size: 12px;">{{scheduler.schedulerInstanceId}}</span></h3>
+        <p style="white-space: pre-wrap;font-size: small;">{{scheduler.summary}}</p>
+
+        <h4>Running jobs</h4>
+        <div class="data-table-container mat-elevation-z8">
+
+          @if (!scheduler.currentlyExecutingJobs || scheduler.currentlyExecutingJobs.length === 0) {
+            <div class="data-table-loading-shade">
+              <div class="data-table-no-data">
+                No running jobs found.
+              </div>
+            </div>
+          }
+
+          <div class="data-table-table-container">
+
+            <table mat-table [dataSource]="scheduler.currentlyExecutingJobs" class="data-table-table">
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let row">{{row.jobDetail.name}}</td>
+              </ng-container>
+
+              <!-- Group Column -->
+              <ng-container matColumnDef="group">
+                <th mat-header-cell *matHeaderCellDef>Group</th>
+                <td mat-cell *matCellDef="let row">{{row.jobDetail.group}}</td>
+              </ng-container>
+
+              <!-- Trigger Name Column -->
+              <ng-container matColumnDef="triggerName">
+                <th mat-header-cell *matHeaderCellDef>Trigger Name</th>
+                <td mat-cell *matCellDef="let row">{{row.trigger.name}}</td>
+              </ng-container>
+
+              <!-- Trigger Group Column -->
+              <ng-container matColumnDef="triggerGroup">
+                <th mat-header-cell *matHeaderCellDef>Trigger Group</th>
+                <td mat-cell *matCellDef="let row">{{row.trigger.group}}</td>
+              </ng-container>
+
+              <!-- Trigger Job Data Column -->
+              <ng-container matColumnDef="triggerJobData">
+                <th mat-header-cell *matHeaderCellDef>Job Data</th>
+                <td mat-cell *matCellDef="let row">{{row.trigger.jobDataMap | json}}</td>
+              </ng-container>
+
+              <!-- Trigger Start Time Column -->
+              <ng-container matColumnDef="triggerStartTime">
+                <th mat-header-cell *matHeaderCellDef>Start Time</th>
+                <td mat-cell *matCellDef="let row">{{row.trigger.startTime | date: 'medium'}}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="runningJobsDisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: runningJobsDisplayedColumns;"></tr>
+            </table>
+          </div>
+
+        </div>
+
+        <br/><br/>
+      }
+    </div>
+  }
+
+</app-page-header>

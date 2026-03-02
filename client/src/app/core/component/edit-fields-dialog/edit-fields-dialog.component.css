@@ -1,0 +1,13 @@
+.save-error p,
+p.save-error {
+  margin-top: 0;
+  color: #ff0000;
+}
+
+mat-icon {
+  vertical-align: middle;
+}
+
+mat-form-field {
+  width: 100%;
+}

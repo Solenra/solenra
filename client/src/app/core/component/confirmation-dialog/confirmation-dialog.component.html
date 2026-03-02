@@ -1,0 +1,68 @@
+@if (data.title) {
+  <h1 matDialogTitle>{{data.title}}</h1>
+}
+<div mat-dialog-content>
+  @if (data.warning || data.warningHtml) {
+    <p>
+      <mat-icon class="warning-icon">warning</mat-icon>
+      @if (data.warning) {
+        <span>{{data.warning}}</span>
+      }
+      @if (data.warningHtml) {
+        <span [innerHTML]="data.warningHtml | safeHtml"></span>
+      }
+    </p>
+  }
+  @if (data.text) {
+    <p>
+      {{data.text}}
+    </p>
+  }
+  @if (data.html) {
+    <div [innerHTML]="data.html | safeHtml"></div>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  @if (data.cancelLabel) {
+    <button type="button" mat-raised-button class="underline-text-onhover" matDialogClose>{{data.cancelLabel}}</button>
+  }
+  @if (confirmButtonText && data.confirmEventEmit) {
+  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirmColour"
+    (click)="this.confirmEvent()"
+    [disabled]="isConfirmButtonDisabled">
+    @if (data.confirmIcon) {
+      <mat-icon>{{data.confirmIcon}}</mat-icon>
+    } {{confirmButtonText}}
+  </button>
+}
+@if (confirmButtonText && !data.confirmEventEmit) {
+  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirmColour"
+    (click)="this.confirmEvent()"
+    [disabled]="isConfirmButtonDisabled"
+    matDialogClose>
+    @if (data.confirmIcon) {
+      <mat-icon>{{data.confirmIcon}}</mat-icon>
+    } {{confirmButtonText}}
+  </button>
+}
+@if (confirm2ButtonText) {
+  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirm2Colour"
+    (click)="this.confirm2Event()"
+    [disabled]="isConfirm2ButtonDisabled"
+    [matDialogClose]="!data.confirm2EventEmit">
+    @if (data.confirm2Icon) {
+      <mat-icon>{{data.confirm2Icon}}</mat-icon>
+      } {{confirm2ButtonText}}
+  </button>
+}
+@if (confirm3ButtonText) {
+  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirm3Colour"
+    (click)="this.confirm3Event()"
+    [disabled]="isConfirm3ButtonDisabled"
+    [matDialogClose]="!data.confirm3EventEmit">
+    @if (data.confirm3Icon) {
+      <mat-icon>{{data.confirm3Icon}}</mat-icon>
+    } {{confirm3ButtonText}}
+  </button>
+}
+</div>

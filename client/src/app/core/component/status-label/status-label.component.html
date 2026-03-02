@@ -1,0 +1,14 @@
+<div class="status status-indicator" [ngClass]="[status.code]">
+  <span>
+    {{status.name}}
+    @if (additionalLabelText) {
+      <span> {{additionalLabelText}}</span>
+    }
+    @if (solarSystemIntegration && status.code === 'loading-from-integration-processing') {
+      ({{percentLoaded | number}}%)
+    }
+  </span>
+  @if (autoReload && status.autoReload) {
+    <mat-spinner [diameter]="20"></mat-spinner>
+  }
+</div>

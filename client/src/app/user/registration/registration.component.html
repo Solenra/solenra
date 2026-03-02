@@ -1,0 +1,49 @@
+<app-page-header 
+  [title]="'Registration'">
+  <form class="registration-form" [formGroup]="formGroup">
+
+    <div>
+        <mat-form-field>
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username">
+        </mat-form-field>
+    </div>
+
+    <div>
+        <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input type="password" matInput formControlName="password">
+        </mat-form-field>
+    </div>
+
+    <div>
+        <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+        </mat-form-field>
+    </div>
+
+    @if (hasTermsAndConditions || hasPrivacyPolicy) {
+        <div>
+            <mat-checkbox formControlName="acceptance">
+                I accept the
+                @if (hasTermsAndConditions) {
+                    <button mat-button (click)="openTermsAndConditions()">terms and conditions</button>
+                    @if (hasPrivacyPolicy) {
+                        and 
+                    }
+                }
+                @if (hasPrivacyPolicy) {
+                            <button mat-button (click)="openPrivacyPolicy()">privacy policy</button>
+                }
+            </mat-checkbox>
+        </div>
+    }
+
+    <div class="action-buttons">
+        <button type="reset" mat-raised-button>Reset</button>
+        <button type="submit" mat-raised-button>Register</button>
+    </div>
+
+  </form>
+</app-page-header>

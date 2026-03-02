@@ -1,0 +1,28 @@
+<div class="mat-card-container">
+  <mat-card class="list-card">
+    <mat-card-header>
+      @if (showBackButton) {
+        <button type="button" mat-icon-button (click)="onBackClick?.()" matTooltip="Back" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      }
+      <mat-card-title>{{title}}</mat-card-title>
+      <div class="header-actions">
+        @if (showImport) {
+          <button type="button" mat-stroked-button color="primary" (click)="onImportClick?.()" class="import-button"><mat-icon>file_upload</mat-icon> Import</button>
+        }
+        @if (showExport) {
+          <button type="button" mat-stroked-button color="primary" (click)="onExportClick?.()" class="export-button"><mat-icon>file_download</mat-icon> Export</button>
+        }
+        @if (buttonLabel) {
+          <button type="button" mat-raised-button color="primary" (click)="onAddClick?.()" class="add-button">
+              <mat-icon>{{buttonIcon}}</mat-icon> {{buttonLabel}}
+          </button>
+        }
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <ng-content></ng-content>
+    </mat-card-content>
+  </mat-card>
+</div>

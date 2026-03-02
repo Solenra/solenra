@@ -1,0 +1,113 @@
+<h1 matDialogTitle class="container-title">{{data.title}}</h1>
+<div mat-dialog-content class="content-container">
+
+  @if (saveErrors?.length) {
+    <div>
+      <p class="save-error"><mat-icon>warning</mat-icon>Error(s) occurred when saving.</p>
+      <ul>
+        @for (saveError of saveErrors; track saveError) {
+          <li>
+            {{saveError}}
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div [formGroup]="editFieldsForm">
+    @for (formField of data.formFields; track formField) {
+      <div>
+        @if (formField.type === 'text') {
+          <mat-form-field [ngClass]="{'long-field' : data.longFields}">
+            <mat-label>{{formField.label}}</mat-label>
+            @if (formField.required) {
+              <input matInput [formControlName]="formField.controlName" required>
+            }
+            @if (!formField.required) {
+              <input matInput [formControlName]="formField.controlName">
+            }
+          </mat-form-field>
+        }
+        @if (formField.type === 'numeric') {
+          <mat-form-field [ngClass]="{'long-field' : data.longFields}">
+            <mat-label>{{formField.label}}</mat-label>
+            @if (formField.required) {
+              <input matInput type="number" [formControlName]="formField.controlName" required>
+            }
+            @if (!formField.required) {
+              <input matInput type="number" [formControlName]="formField.controlName">
+            }
+          </mat-form-field>
+        }
+        @if (formField.type === 'datetime') {
+          <mat-form-field [ngClass]="{'long-field' : data.longFields}">
+            <mat-label>{{formField.label}}</mat-label>
+            @if (formField.required) {
+              <input matInput type="datetime-local" [formControlName]="formField.controlName" required>
+            }
+            @if (!formField.required) {
+              <input matInput type="datetime-local" [formControlName]="formField.controlName">
+            }
+          </mat-form-field>
+        }
+        @if (formField.type === 'time') {
+          <mat-form-field [ngClass]="{'long-field' : data.longFields}">
+            <mat-label>{{formField.label}}</mat-label>
+            @if (formField.required) {
+              <input matInput type="time" [formControlName]="formField.controlName" required>
+            }
+            @if (!formField.required) {
+              <input matInput type="time" [formControlName]="formField.controlName">
+            }
+          </mat-form-field>
+        }
+        @if (formField.type === 'boolean') {
+          <mat-checkbox [formControlName]="formField.controlName">
+            {{formField.label}}
+          </mat-checkbox>
+        }
+        @if (formField.type === 'select') {
+          <mat-form-field [ngClass]="{'long-field' : data.longFields}">
+            <mat-label>{{formField.label}}</mat-label>
+            <mat-select [formControlName]="formField.controlName" [required]="formField.required" [multiple]="formField.multi">
+              @if (formField.optionAllowBlank) {
+                <mat-option [value]="undefined">
+                  None
+                </mat-option>
+              }
+              @for (option of formField.options; track option) {
+                <mat-option [value]="option.value !== undefined ? option.value : option[formField.optionKey || 'value']">
+                  {{option.label !== undefined ? option.label : option[formField.optionLabel || 'label']}}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+        @if (formField.type === 'textarea') {
+          <div>
+            <mat-form-field [ngClass]="{'long-field' : data.longFields}">
+              <mat-label>{{formField.label}}</mat-label>
+              <textarea matInput cdkTextareaAutosize [formControlName]="formField.controlName"></textarea>
+            </mat-form-field>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>
+<div mat-dialog-actions align="end">
+  <button type="button" mat-stroked-button matDialogClose>Cancel</button>
+  @if (editFieldsForm && !data.saveEventEmit) {
+    <button type="button" mat-raised-button [color]="data.saveButtonColor"
+      [disabled]="data.disableFields || editFieldsForm.invalid" [mat-dialog-close]="fieldData">
+      {{saveButtonText}}
+    </button>
+  }
+  @if (editFieldsForm && data.saveEventEmit) {
+    <button type="button" mat-stroked-button [color]="data.saveButtonColor"
+      [disabled]="data.disableFields || editFieldsForm.invalid || isSaveButtonDisabled" (click)="this.saveEvent()">
+      {{saveButtonText}}
+    </button>
+  }
+</div>

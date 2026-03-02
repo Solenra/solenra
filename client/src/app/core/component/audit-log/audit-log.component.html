@@ -1,0 +1,59 @@
+<div class="data-table-container">
+
+  @if (isLoadingDataTable || isError || resultsLength === 0) {
+    <div class="data-table-loading-shade"
+      >
+      @if (isLoadingDataTable) {
+        <mat-spinner></mat-spinner>
+      }
+      @if (isError) {
+        <div class="data-table-loading-error">
+          An error occurred loading history.
+        </div>
+      }
+      @if (!isLoadingDataTable && !isError) {
+        <div class="data-table-no-data">
+          No history entries found.
+        </div>
+      }
+    </div>
+  }
+
+  <div class="data-table-table-container">
+
+    <table mat-table [dataSource]="data" class="data-table-table"
+      matSort matSortActive="actionDate" matSortDisableClear matSortDirection="desc">
+      <!-- Action Date Column -->
+      <ng-container matColumnDef="actionDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+        <td mat-cell *matCellDef="let row">{{row.actionDate | date: 'medium'}}</td>
+      </ng-container>
+
+      <!-- Person Column -->
+      <ng-container matColumnDef="auditUserFirstName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Person</th>
+        <td mat-cell *matCellDef="let row">{{row.auditUser.firstName}} {{row.auditUser.lastName}}</td>
+      </ng-container>
+
+      <!-- Action Name Column -->
+      <ng-container matColumnDef="auditActionName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+        <td mat-cell *matCellDef="let row">{{row.auditAction.name}}</td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="statusDisplayOrder">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <app-status-label [status]="row.status" [autoReload]="false"></app-status-label>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  <mat-paginator [length]="resultsLength" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50, 100]" aria-label="Select page"></mat-paginator>
+
+</div>

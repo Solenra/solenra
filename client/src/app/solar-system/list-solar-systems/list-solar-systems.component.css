@@ -1,0 +1,16 @@
+.search-form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.search-form > mat-form-field {
+  margin: 0 0.2em;
+}
+
+.search-form > button {
+  margin: 0.2em;
+}
+
+app-status-label {
+  display: inline-flex;
+}

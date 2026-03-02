@@ -1,0 +1,70 @@
+<app-page-header 
+  [title]="'Edit Rate Periods'" 
+  [buttonLabel]="'Add Rate'"
+  [buttonIcon]="'add'"
+  [showBackButton]="true"
+  [onAddClick]="addRate.bind(this)"
+  [onBackClick]="goBack.bind(this)">
+
+	<div *ngIf="!energyPlan">Loading...</div>
+
+	<table mat-table [dataSource]="energyPlan?.energyPlanRates || []" class="data-table-table" *ngIf="energyPlan">
+
+		<ng-container matColumnDef="rateName">
+			<th mat-header-cell *matHeaderCellDef>Rate name</th>
+			<td mat-cell *matCellDef="let r">{{r.rateName}}</td>
+		</ng-container>
+
+		<ng-container matColumnDef="rateValue">
+			<th mat-header-cell *matHeaderCellDef>Rate value</th>
+			<td mat-cell *matCellDef="let r">{{r.rateValue}}</td>
+		</ng-container>
+
+		<ng-container matColumnDef="comparativeRateValue">
+			<th mat-header-cell *matHeaderCellDef>Comparative</th>
+			<td mat-cell *matCellDef="let r">{{r.comparativeRateValue}}</td>
+		</ng-container>
+
+		<ng-container matColumnDef="actions">
+			<th mat-header-cell *matHeaderCellDef>Actions</th>
+			<td mat-cell *matCellDef="let r">
+        <button type="button" mat-icon-button (click)="editPeriods(r)" matTooltip="Edit Periods"><mat-icon>access_time</mat-icon></button>
+        <button type="button" mat-icon-button (click)="editRate(r)"><mat-icon>edit</mat-icon></button>
+        <button type="button" mat-icon-button (click)="deleteRate(r)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <!-- Periods summary for each rate -->
+  <div class="periods-summary" *ngIf="energyPlan?.energyPlanRates">
+    <div *ngFor="let rate of energyPlan.energyPlanRates" class="rate-item">
+      <h4>{{rate.rateName}} - Periods</h4>
+      <div *ngIf="!rate.energyPlanRatePeriods || rate.energyPlanRatePeriods.length === 0" class="no-periods">
+        No periods defined
+      </div>
+      <table *ngIf="rate.energyPlanRatePeriods && rate.energyPlanRatePeriods.length > 0" class="periods-table">
+        <thead>
+          <tr>
+            <th>Days of week</th>
+            <th>Start time</th>
+            <th>End time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let period of rate.energyPlanRatePeriods; let pidx = index">
+            <td>{{getDaysOfWeekDisplay(period)}}</td>
+            <td>{{period.startTime}}</td>
+            <td>{{period.endTime}}</td>
+            <td>
+              <button type="button" mat-icon-button (click)="deletePeriod(rate, pidx)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</app-page-header>

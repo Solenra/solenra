@@ -1,0 +1,251 @@
+<div>
+  @if (solarSystem) {
+    <div style="display: inline-flex;">
+      <div>
+        <h2>
+          @if (solarSystem.name) {
+            {{solarSystem.name}}
+          } @else {
+            Solar System
+          }
+        </h2>
+      </div>
+      <div style="align-content: center; margin-left: 20px;">
+        <button type="button" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button type="button" mat-menu-item (click)="onClickEdit()">Edit</button>
+          <a mat-menu-item [routerLink]="['/solar-systems/' + solarSystemId + '/energy']">View Energy Records</a>
+        </mat-menu>
+      </div>
+    </div>
+
+    <div class="split-panel">
+      <div class="info-list">
+        @if (solarSystem.notes) {
+          <div>Notes</div>
+          <div>{{solarSystem.notes}}</div>
+        }
+        @if (solarSystem.outlayCost) {
+          <div>Outlay Cost</div>
+          <div>{{currencySymbol}}{{solarSystem.outlayCost}}</div>
+        }
+        @if (solarSystem.cumulativeSupplyCost) {
+          <div>Energy Supply Cost</div>
+          <div>{{currencySymbol}}{{solarSystem.cumulativeSupplyCost | number}}</div>
+        }
+        @if (solarSystem.cumulativeImportCost) {
+          <div>Energy Import Cost</div>
+          <div>{{currencySymbol}}{{solarSystem.cumulativeImportCost | number}}</div>
+        }
+        @if (solarSystem.cumulativeExportRevenue) {
+          <div>Energy Export Revenue</div>
+          <div>{{currencySymbol}}{{solarSystem.cumulativeExportRevenue | number}}</div>
+        }
+        @if (solarSystem.cumulativeSelfConsumptionSavings) {
+          <div>Self Consumption Savings</div>
+          <div>{{currencySymbol}}{{solarSystem.cumulativeSelfConsumptionSavings | number}}</div>
+        }
+        @if (solarSystem.calculatedSavings) {
+          <div>Calculated Savings</div>
+          <div>{{currencySymbol}}{{solarSystem.calculatedSavings | number}}</div>
+        }
+        @if (solarSystem.roiToDate) {
+          <div>ROI To Date</div>
+          <div>{{solarSystem.roiToDate * 100 | number}}%</div>
+        }
+        @if (solarSystem.roiAnnualised) {
+          <div>ROI Annualised</div>
+          <div>{{solarSystem.roiAnnualised | number}}%</div>
+        }
+        @if (solarSystem.paybackPeriod) {
+          <div>Payback Period</div>
+          <div>{{solarSystem.paybackPeriod | number}} years</div>
+        }
+        @if (solarSystem.breakEvenDate) {
+          <div>Break Even Date</div>
+          <div>{{solarSystem.breakEvenDate | date}}</div>
+        }
+        @if (solarSystem.calculatedAt) {
+          <div>Calculated At</div>
+          <div>{{solarSystem.calculatedAt}}</div>
+        }
+      </div>
+
+      @if (roiChartData) {
+        <div>
+          <div class="system-roi">
+            <div style="padding-bottom: 15px;">
+              <strong>{{solarSystem.roiAnnualised | number}}% ROI</strong>
+            </div>
+            <div>
+              <p-chart type="doughnut" [data]="roiChartData" [options]="roiChartOptions" />
+            </div>
+          </div>
+        </div>
+      }
+
+      <div>
+        @if (solarSystem.solarSystemIntegrations && solarSystem.solarSystemIntegrations.length > 0) {
+          @for (solarSystemIntegration of solarSystem.solarSystemIntegrations; track solarSystemIntegration) {
+            <div style="max-width: 300px; margin: 0 2px;">
+              <mat-card appearance="outlined">
+                <mat-card-header>
+                  <mat-card-title>{{solarSystemIntegration.integration.name}}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div style="margin-top: 8px;">
+                    <app-status-label [solarSystemIntegration]="solarSystemIntegration" [autoReload]="true"></app-status-label>
+                  </div>
+                </mat-card-content>
+                <mat-card-actions>
+                  @if (solarSystemIntegration.status.code === 'expired-credentials' || solarSystemIntegration.status.code === 'setup') {
+                    @if (solarSystemIntegration.integration.code === 'solaredge_v2') {
+                      <a mat-raised-button [href]="'https://connect.solaredge.com/authorize?client_id=' + solarSystemIntegration.integration.clientId + '&external_id=' + solarSystemId">
+                        @if (solarSystemIntegration.status.code === 'setup') {
+                          Connect
+                        } @else {
+                          Reconnect
+                        }
+                      </a>
+                    }
+                  }
+                  <button type="button" mat-raised-button color="warn">Delete</button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          }
+        } @else {
+          <div>
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Add integration</mat-card-title>
+              </mat-card-header>
+              <mat-card-actions>
+                <button type="button" mat-raised-button>Connect to service</button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        }
+      </div>
+    </div>
+
+    <br/>
+
+    @if (energyPlanRoiChartData || energyPlanRevenueChartData) {
+      <div style="margin: 10px 20%;">
+        <p-chart type="bar" [data]="energyPlanRoiChartData" [options]="energyPlanRoiChartOptions" />
+        <p-chart type="bar" [data]="energyPlanRevenueChartData" [options]="energyPlanRevenueChartOptions" />
+      </div>
+    }
+
+    <br/>
+
+    <div>
+      <h4>Energy plans</h4>
+    </div>
+    @for (energyPlan of solarSystem.energyPlans; track energyPlan) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          {{energyPlan.energyPlan.name}}
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+
+          <div class="split-panel">
+            <div class="info-list">
+
+              @if (energyPlan.energyPlan.notes) {
+                <div>Notes</div>
+                <div>{{energyPlan.energyPlan.notes}}</div>
+              }
+              @if (energyPlan.startDate) {
+                <div>Start date</div>
+                <div>{{energyPlan.startDate | date}}</div>
+              }
+              @if (energyPlan.endDate) {
+                <div>End date</div>
+                <div>{{energyPlan.endDate | date}}</div>
+              }
+              @if (energyPlan.cumulativeSupplyCost) {
+                <div>Energy Supply Cost</div>
+                <div>{{currencySymbol}}{{energyPlan.cumulativeSupplyCost | number}}</div>
+              }
+              @if (energyPlan.cumulativeImportCost) {
+                <div>Energy Import Cost</div>
+                <div>{{currencySymbol}}{{energyPlan.cumulativeImportCost | number}}</div>
+              }
+              @if (energyPlan.cumulativeExportRevenue) {
+                <div>Energy Export Revenue</div>
+                <div>{{currencySymbol}}{{energyPlan.cumulativeExportRevenue | number}}</div>
+              }
+              @if (energyPlan.cumulativeSelfConsumptionSavings) {
+                <div>Self Consumption Savings</div>
+                <div>{{currencySymbol}}{{energyPlan.cumulativeSelfConsumptionSavings | number}}</div>
+              }
+              @if (energyPlan.calculatedSavings) {
+                <div>Calculated Savings</div>
+                <div>{{currencySymbol}}{{energyPlan.calculatedSavings | number}}</div>
+              }
+              @if (energyPlan.roiAnnualised) {
+                <div>ROI Annualised</div>
+                <div>{{energyPlan.roiAnnualised | number}}%</div>
+              }
+              @if (energyPlan.calculatedAt) {
+                <div>Calculated At</div>
+                <div>{{energyPlan.calculatedAt}}</div>
+              }
+
+            </div>
+          </div>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              Rates
+            </mat-expansion-panel-header>
+            <ng-template matExpansionPanelContent>
+              <div class="split-panel">
+                <div class="info-list">
+                  <div>Supply rate</div>
+                  <div>{{energyPlan.energyPlan.supplyRateValue}}</div>
+                  <div>Export Rate</div>
+                  <div>{{energyPlan.energyPlan.exportRateValue}}</div>
+                  @for (energyPlanRate of energyPlan.energyPlan.energyPlanRates; track energyPlanRate) {
+                    <div class="divider-above">Rate name</div>
+                    <div class="divider-above">{{energyPlanRate.rateName}}</div>
+                    <div>Rate</div>
+                    <div>{{energyPlanRate.rateValue}}</div>
+                    <div>Comparative Rate</div>
+                    <div>{{energyPlanRate.comparativeRateValue}}</div>
+                    @for (energyPlanRatePeriod of energyPlanRate.energyPlanRatePeriods; track energyPlanRatePeriod) {
+                      <div>Days</div>
+                      <div>
+                        @for (dayOfWeek of energyPlanRatePeriod.daysOfWeek; track dayOfWeek; let last = $last) {
+                          <span>{{dayOfWeek.dayOfWeek}}@if (!last) {<span>, </span>}</span>
+                        }
+                      </div>
+                      <div>Start time</div>
+                      <div>{{energyPlanRatePeriod.startTime}}</div>
+                      <div>End time</div>
+                      <div>{{energyPlanRatePeriod.endTime}}</div>
+                    }
+                  }
+                </div>
+              </div>
+            </ng-template>
+          </mat-expansion-panel>
+
+          <br/>
+
+          <div class="action-buttons">
+            <button type="button" mat-raised-button (click)="onClickExportEnergyPlans()">Export</button>
+            <button type="button" mat-raised-button (click)="onClickEditEnergyPlan()">Edit</button>
+            <button type="button" mat-raised-button (click)="onClickRemoveEnergyPlan()">Remove</button>
+          </div>
+
+        </ng-template>
+      </mat-expansion-panel>
+      <br/>
+    }
+  }
+</div>

@@ -1,0 +1,51 @@
+<mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor" class="menu-tree">
+  <!-- This is the tree node template for leaf nodes -->
+  <!-- There is inline padding applied to this node using styles.
+  This padding value depends on the mat-icon-button width. -->
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+    @if (node.routerLink) {
+      <a [routerLink]="node.routerLink"
+        routerLinkActive #rla="routerLinkActive" [routerLinkActiveOptions]="{exact : true}"
+        [ngClass]="{'button-active': rla.isActive}"
+      >{{node.name}}</a>
+    } @else if (node.href) {
+      <a [href]="node.href" [attr.target]="node.externalLink ? '_blank' : '_self'">{{node.name}}@if (node.externalLink) {
+        <mat-icon>open_in_new</mat-icon>
+      }</a>
+    } @else if (node.action) {
+      <a href="javascript:;" tabindex="0" (click)="doAction(node.action)" (keyup)="$event.key === 'Enter' ? doAction(node.action) : null">{{node.name}}</a>
+    } @else {
+      <span>{{node.name}}</span>
+    }
+  </mat-tree-node>
+  <!-- This is the tree node template for expandable nodes -->
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding matTreeNodeToggle [cdkTreeNodeTypeaheadLabel]="node.name" class="parent-menu-item">
+    <div class="mat-tree-node">
+      <button type="button" mat-icon-button matTreeNodeToggle
+        [attr.aria-label]="'Toggle ' + node.name">
+        <mat-icon class="mat-icon-rtl-mirror">
+          {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+        </mat-icon>
+      </button>
+      @if (node.routerLink) {
+        <a [routerLink]="node.routerLink">{{node.name}}</a>
+      } @else if (node.href) {
+        <a [href]="node.href" [attr.target]="node.externalLink ? '_blank' : '_self'">{{node.name}}@if (node.externalLink) {
+          <mat-icon>open_in_new</mat-icon>
+        }</a>
+      } @else if (node.action) {
+        <a href="javascript:;" tabindex="0" (click)="doAction(node.action)" (keyup)="$event.key === 'Enter' ? doAction(node.action) : null">{{node.name}}</a>
+      } @else {
+        <span>{{node.name}}</span>
+      }
+    </div>
+    <!-- There is inline padding applied to this div using styles.
+    This padding value depends on the mat-icon-button width.  -->
+    <div [class.menu-tree-invisible]="!tree.isExpanded(node)" role="group">
+      <ng-container matTreeNodeOutlet></ng-container>
+    </div>
+  </mat-tree-node>
+</mat-tree>
+<div class="loading-indicator">@if (loadingMenu) {
+  <mat-spinner [diameter]="40"></mat-spinner>
+}</div>

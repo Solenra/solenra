@@ -1,0 +1,44 @@
+<app-page-header 
+  [title]="'Integrations'"
+  [showImport]="false" [showExport]="false">
+  <div class="data-table-container mat-elevation-z8">
+    <div class="data-table-table-container">
+      <table mat-table [dataSource]="dataSource" class="data-table-table" matSort>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let element">{{element.name}}</td>
+        </ng-container>
+
+        <!-- Code Column -->
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+          <td mat-cell *matCellDef="let element">{{element.code}}</td>
+        </ng-container>
+
+        <!-- Enabled Column -->
+        <ng-container matColumnDef="enabled">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Enabled</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-checkbox [checked]="element.enabled" disabled></mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let element">
+            <button type="button" mat-icon-button (click)="edit(element)" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+    <mat-paginator showFirstLastButtons [length]="resultsLength" [pageIndex]="initialPageIndex" [pageSize]="initialPageSize" [pageSizeOptions]="[5, 10, 25, 50]" aria-label="Select page"></mat-paginator>
+  </div>
+</app-page-header>

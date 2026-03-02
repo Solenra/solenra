@@ -1,0 +1,101 @@
+<div>
+  <p>
+    Energy records
+  </p>
+</div>
+
+<div class="search-form">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput [formControl]="searchForm.controls['nameLike'] | formControl" (keyup.enter)="doFilter()">
+  </mat-form-field>
+
+  <button type="button" mat-raised-button color="primary" (click)="doFilter()" [disabled]="!searchForm.valid">Filter</button>
+  <button type="button" mat-raised-button (click)="resetForm()">Reset</button>
+</div>
+
+<div class="data-table-container mat-elevation-z8">
+
+  @if (isLoadingDataTable || isError || resultsLength === 0) {
+    <div class="data-table-loading-shade data-table-loading-shade-with-footer">
+      @if (isLoadingDataTable) {
+        <mat-spinner></mat-spinner>
+      }
+      @if (isError) {
+        <div class="data-table-loading-error">
+          An error occurred loading data.
+        </div>
+      }
+      @if (!isLoadingDataTable && !isError) {
+        <div class="data-table-no-data">
+          No records found.
+        </div>
+      }
+    </div>
+  }
+
+  <div class="data-table-table-container">
+
+    <table mat-table [dataSource]="data" class="data-table-table"
+           matSort matSortDisableClear [matSortActive]="initialSortActive" [matSortDirection]="initialSortDirection">
+      <!-- processStatus Column -->
+      <ng-container matColumnDef="processStatus">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>processStatus</th>
+        <td mat-cell *matCellDef="let row">{{row.processStatus}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="timeUnit">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>timeUnit</th>
+        <td mat-cell *matCellDef="let row">{{row.timeUnit}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="unit">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>unit</th>
+        <td mat-cell *matCellDef="let row">{{row.unit}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="startDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>startDate</th>
+        <td mat-cell *matCellDef="let row">{{row.startDate}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="endDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>endDate</th>
+        <td mat-cell *matCellDef="let row">{{row.endDate}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="productionValue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>productionValue</th>
+        <td mat-cell *matCellDef="let row">{{row.productionValue}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="importValue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>importValue</th>
+        <td mat-cell *matCellDef="let row">{{row.importValue}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="exportValue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>exportValue</th>
+        <td mat-cell *matCellDef="let row">{{row.exportValue}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="consumptionValue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>consumptionValue</th>
+        <td mat-cell *matCellDef="let row">{{row.consumptionValue}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="selfConsumptionValue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>selfConsumptionValue</th>
+        <td mat-cell *matCellDef="let row">{{row.selfConsumptionValue}}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  <mat-paginator showFirstLastButtons [length]="resultsLength" [pageIndex]="initialPageIndex" [pageSize]="initialPageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]" aria-label="Select page"></mat-paginator>
+
+</div>
+
+<br/>

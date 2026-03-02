@@ -1,0 +1,57 @@
+.status {
+  padding: 0.5em 0.75em 0.5em 0.75em;
+  border-radius: 1.5em;
+  margin-right: 0.25em;
+}
+
+.status-indicator {
+  padding-left: 1em;
+  padding-right: 1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #808080;
+}
+
+.status-indicator mat-spinner {
+  margin-left: 5px;
+}
+
+.status-indicator.disabled,
+.status-indicator.extra-info {
+  background-color: white;
+  color: gray;
+  font-size: 12px;
+  border: 1px solid darkgrey;
+}
+
+.status-indicator.loading-from-integration-queued,
+.status-indicator.loading-from-integration-processing,
+.status-indicator.loading-from-integration-transient-error,
+.status-indicator.pending,
+.status-indicator.processing {
+  background-color: #FFE699;
+  color: #000000;
+}
+
+.status-indicator.loading-from-integration-error,
+.status-indicator.expired {
+  background-color: #F70D1A;
+  color: #ffffff;
+}
+
+.status-indicator.up-to-date {
+  background-color: #498006;
+  color: #ffffff;
+}
+
+.extra-info-chip {
+  border-radius: 1.5em;
+  padding: 0.2em 0.5em 0.2em 0.5em;
+  margin-left: 5px;
+  background-color: white;
+  color: gray;
+  font-size: 12px;
+  border: 1px solid darkgrey;
+}
