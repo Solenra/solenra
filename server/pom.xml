@@ -29,6 +29,9 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<spring-boot.version>4.0.3</spring-boot.version>
+		<spring-retry.version>2.0.12</spring-retry.version>
+		<native-maven-plugin.version>0.11.5</native-maven-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -81,7 +84,7 @@
 		<dependency>
 			<groupId>org.springframework.retry</groupId>
 			<artifactId>spring-retry</artifactId>
-			<version>2.0.5</version>
+			<version>${spring-retry.version}</version>
 		</dependency>
 
 		<dependency>
@@ -138,10 +141,12 @@
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
+				<version>${native-maven-plugin.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.github.solenra.server.ServerApplication</mainClass>
                 </configuration>
