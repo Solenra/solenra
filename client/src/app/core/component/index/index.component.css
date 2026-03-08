@@ -1,0 +1,115 @@
+/* Intro Section */
+.intro {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #ffeb3b, #f57c00);
+    color: #212121;
+    position: relative;
+    overflow: hidden;
+    animation: gradientMove 10s ease infinite;
+    border-radius: 50px 50px 50px 50px;
+}
+
+.intro h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    animation: fadeInUp 1s ease forwards;
+}
+
+.intro p {
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    animation: fadeInUp 1.2s ease forwards;
+}
+
+.intro a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #212121;
+    background-color: #ff9800;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.intro a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+/* Animated gradient for intro */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.intro {
+    background-size: 200% 200%;
+}
+
+/* Fade in animations */
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Features Section */
+.features-container {
+    margin: 40px auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+}
+
+.feature-card {
+    flex: 1 1 300px; /* cards shrink/grow, min width 300px */
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+}
+
+footer a {
+    text-decoration: none;
+    color: #1976d2;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #0d47a1;
+}
+
+/* Toolbar Spacer */
+.spacer {
+    flex: 1 1 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .intro h1 {
+        font-size: 2.2rem;
+    }
+    .intro p {
+        font-size: 1rem;
+    }
+    .features {
+        padding: 40px 10px;
+        gap: 16px;
+    }
+}

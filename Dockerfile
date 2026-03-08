@@ -4,7 +4,25 @@
 # docker-compose -f docker-compose.dev.yml down
 
 ############################
-# 1) Build Client WAR
+# 1) Build Angular (cached)
+############################
+FROM node:20 AS angular-build
+
+WORKDIR /client
+
+# Cache npm dependencies
+COPY client/package*.json ./
+RUN npm install
+
+# Copy source
+COPY client/ .
+
+# Build Angular
+RUN npm run build
+
+
+############################
+# 2) Build Client WAR
 ############################
 FROM maven:3.9-eclipse-temurin-21 AS client-build
 
@@ -19,15 +37,16 @@ RUN mvn -B dependency:go-offline
 # Copy client WAR source
 COPY client-war/ .
 
-# Copy Angular source inside the image
-COPY client/ ../client
+# Copy Angular build output
+COPY --from=angular-build /client/dist/client/browser \
+     /client/dist/client/browser
 
 # Build client WAR
 RUN mvn -B clean package -DskipTests
 
 
 ############################
-# 2) Build Server WAR
+# 3) Build Server WAR
 ############################
 FROM maven:3.9-eclipse-temurin-21 AS server-build
 
@@ -40,9 +59,9 @@ RUN mvn -B clean package -DskipTests
 
 
 ############################
-# 3) Runtime: Tomcat
+# 4) Runtime: Tomcat
 ############################
-FROM tomcat:11.0-jdk25
+FROM tomcat:11-jre25-temurin-noble
 
 # Remove default webapps
 RUN rm -rf /usr/local/tomcat/webapps/*
@@ -51,7 +70,7 @@ RUN rm -rf /usr/local/tomcat/webapps/*
 COPY --from=client-build /client-war/target/client.war \
      /usr/local/tomcat/webapps/ROOT.war
 
-# --- Spring Boot WAR → /server ---
+# --- Server WAR → /server ---
 COPY --from=server-build /server/target/server.war \
      /usr/local/tomcat/webapps/server.war
 
