@@ -354,17 +354,16 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     @Override
     public EnergyPlanDto saveEnergyPlan(EnergyPlanDto energyPlanDto) {
         // TODO permission check
-        EnergyPlan energyPlan;
+        EnergyPlan energyPlan = null;
 
         String name = energyPlanDto.getName();
 
         if (energyPlanDto.getId() != null) {
             // Load existing energy plan
-            energyPlan = energyPlanRepository.findById(energyPlanDto.getId()).orElseThrow(() -> {
-                String errorMessage = "EnergyPlan with ID [" + energyPlanDto.getId() + "] not found.";
-                return new ApplicationException(HttpStatus.BAD_REQUEST, errorMessage);
-            });
+            energyPlan = energyPlanRepository.findById(energyPlanDto.getId()).orElse(null);
+        }
 
+        if (energyPlan != null) {
             // Clear existing child collections, to be reloaded
             if (energyPlan.getEnergyPlanRates() != null) {
                 energyPlan.getEnergyPlanRates().clear();

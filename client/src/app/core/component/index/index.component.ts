@@ -23,6 +23,7 @@ import { CommonModule } from '@angular/common';
 })
 export class IndexComponent implements OnInit {
   identity: Identity | null = null;
+  currentYear = new Date().getFullYear();
 
   features = [
     { title: 'ROI & Payback Calculator', description: 'Track how long your solar investment takes to pay for itself.' },
