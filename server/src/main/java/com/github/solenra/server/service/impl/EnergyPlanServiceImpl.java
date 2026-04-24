@@ -15,6 +15,9 @@ import com.github.solenra.server.entity.integration.SystemDetails;
 import com.github.solenra.server.entity.integration.SystemEnergyDetails;
 import com.github.solenra.server.exceptions.ApplicationException;
 import com.github.solenra.server.model.EnergyPlanDto;
+import com.github.solenra.server.model.EnergyPlanRateDto;
+import com.github.solenra.server.model.EnergyPlanRatePeriodDto;
+import com.github.solenra.server.model.EnergyPlanRatePeriodDayDto;
 import com.github.solenra.server.model.SolarSystemDto;
 import com.github.solenra.server.model.SolarSystemEnergyPlanDto;
 import com.github.solenra.server.repository.*;
@@ -26,6 +29,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -37,6 +42,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
 
     private final EnergyPlanRepository energyPlanRepository;
     private final EnergyPlanRatePeriodRepository energyPlanRatePeriodRepository;
+    private final EnergyPlanStatusRepository energyPlanStatusRepository;
     private final SolarSystemEnergyPlanRepository solarSystemEnergyPlanRepository;
     private final SolarSystemRepository solarSystemRepository;
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
@@ -47,6 +53,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
             SchedulerService schedulerService,
             EnergyPlanRepository energyPlanRepository,
             EnergyPlanRatePeriodRepository energyPlanRatePeriodRepository,
+            EnergyPlanStatusRepository energyPlanStatusRepository,
             SolarSystemEnergyPlanRepository solarSystemEnergyPlanRepository,
             SolarSystemRepository solarSystemRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
@@ -55,6 +62,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     ) {
         this.energyPlanRepository = energyPlanRepository;
         this.energyPlanRatePeriodRepository = energyPlanRatePeriodRepository;
+        this.energyPlanStatusRepository = energyPlanStatusRepository;
         this.solarSystemEnergyPlanRepository = solarSystemEnergyPlanRepository;
         this.solarSystemRepository = solarSystemRepository;
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
@@ -336,6 +344,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
 
     @Override
     public EnergyPlanDto getEnergyPlan(Long id) {
+        // TODO permission check
         return new EnergyPlanDto(energyPlanRepository.findById(id).orElseThrow(() -> {
             String errorMessage = "EnergyPlan with ID [" + id + "] not found.";
             return new ApplicationException(HttpStatus.BAD_REQUEST, errorMessage);
@@ -343,15 +352,109 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     }
 
     @Override
-    public EnergyPlanDto saveEnergyPlan(EnergyPlanDto energyPlan) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveEnergyPlan'");
+    public EnergyPlanDto saveEnergyPlan(EnergyPlanDto energyPlanDto) {
+        // TODO permission check
+        EnergyPlan energyPlan;
+
+        String name = energyPlanDto.getName();
+
+        if (energyPlanDto.getId() != null) {
+            // Load existing energy plan
+            energyPlan = energyPlanRepository.findById(energyPlanDto.getId()).orElseThrow(() -> {
+                String errorMessage = "EnergyPlan with ID [" + energyPlanDto.getId() + "] not found.";
+                return new ApplicationException(HttpStatus.BAD_REQUEST, errorMessage);
+            });
+
+            // Clear existing child collections, to be reloaded
+            if (energyPlan.getEnergyPlanRates() != null) {
+                energyPlan.getEnergyPlanRates().clear();
+            }
+        } else {
+            // Create new energy plan
+            energyPlan = new EnergyPlan();
+
+            if (energyPlanRepository.existsByName(name)) {
+                name = name + " (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ")";
+            }
+        }
+
+        // Map DTO to entity
+        energyPlan.setName(name);
+        energyPlan.setNotes(energyPlanDto.getNotes());
+        energyPlan.setShared(energyPlanDto.getShared());
+        energyPlan.setSupplyRateValue(energyPlanDto.getSupplyRateValue());
+        energyPlan.setExportRateValue(energyPlanDto.getExportRateValue());
+
+        // Set status - default to draft if not specified
+        if (energyPlanDto.getStatus() != null && energyPlanDto.getStatus().getId() != null) {
+            EnergyPlanStatus status = energyPlanStatusRepository.findById(energyPlanDto.getStatus().getId()).orElseThrow(() -> {
+                String errorMessage = "EnergyPlanStatus with ID [" + energyPlanDto.getStatus().getId() + "] not found.";
+                return new ApplicationException(HttpStatus.BAD_REQUEST, errorMessage);
+            });
+            energyPlan.setStatus(status);
+        } else {
+            // Default to draft status
+            energyPlan.setStatus(energyPlanStatusRepository.findByCode(EnergyPlanStatus.CODE_DRAFT));
+        }
+
+        // Handle energy plan rates
+        if (energyPlanDto.getEnergyPlanRates() != null) {
+            if (energyPlan.getEnergyPlanRates() == null) {
+                energyPlan.setEnergyPlanRates(new ArrayList<>());
+            }
+
+            for (EnergyPlanRateDto rateDto : energyPlanDto.getEnergyPlanRates()) {
+                EnergyPlanRate rate = new EnergyPlanRate();
+                rate.setEnergyPlan(energyPlan);
+                rate.setRateName(rateDto.getRateName());
+                rate.setRateValue(rateDto.getRateValue());
+                rate.setComparativeRateValue(rateDto.getComparativeRateValue());
+
+                energyPlan.getEnergyPlanRates().add(rate);
+
+                // Handle periods
+                if (rateDto.getEnergyPlanRatePeriods() != null) {
+                    if (rate.getEnergyPlanRatePeriods() == null) {
+                        rate.setEnergyPlanRatePeriods(new ArrayList<>());
+                    }
+
+                    for (EnergyPlanRatePeriodDto periodDto : rateDto.getEnergyPlanRatePeriods()) {
+                        EnergyPlanRatePeriod period = new EnergyPlanRatePeriod();
+                        period.setEnergyPlanRate(rate);
+                        period.setStartTime(periodDto.getStartTime());
+                        period.setEndTime(periodDto.getEndTime());
+
+                        rate.getEnergyPlanRatePeriods().add(period);
+
+                        // Handle days of week
+                        if (periodDto.getDaysOfWeek() != null) {
+                            if (period.getDaysOfWeek() == null) {
+                                period.setDaysOfWeek(new ArrayList<>());
+                            }
+
+                            for (EnergyPlanRatePeriodDayDto dayDto : periodDto.getDaysOfWeek()) {
+                                EnergyPlanRatePeriodDay day = new EnergyPlanRatePeriodDay();
+                                day.setEnergyPlanRatePeriod(period);
+                                day.setDayOfWeek(dayDto.getDayOfWeek());
+
+                                period.getDaysOfWeek().add(day);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Save the energy plan and child records
+        energyPlan = energyPlanRepository.save(energyPlan);
+
+        return new EnergyPlanDto(energyPlan);
     }
 
     @Override
     public void deleteEnergyPlan(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteEnergyPlan'");
+        // TODO permission check
+        energyPlanRepository.deleteById(id);
     }
 
     @Override

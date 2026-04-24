@@ -30,8 +30,9 @@ public class EnergyPlanDto {
         if (energyPlan.getEnergyPlanRates() != null) {
             this.energyPlanRates = energyPlan.getEnergyPlanRates().stream().map(EnergyPlanRateDto::new).collect(Collectors.toList());
         }
-
-        // TODO status
+        if (energyPlan.getStatus() != null) {
+            this.status = new StatusDto(energyPlan.getStatus());
+        }
     }
 
     public Long getId() {

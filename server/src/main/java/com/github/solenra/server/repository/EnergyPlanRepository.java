@@ -6,4 +6,6 @@ import com.github.solenra.server.entity.EnergyPlan;
 
 public interface EnergyPlanRepository extends JpaRepository<EnergyPlan, Long> {
 
+    boolean existsByName(String name);
+
 }

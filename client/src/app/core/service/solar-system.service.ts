@@ -75,6 +75,14 @@ export class SolarSystemService {
     return this.serverService.postRequest(this.restUrl + '/save', solarSystem);
   }
 
+  saveIntegration(solarSystemId: number, integrationData: any): Observable<any> {
+    return this.serverService.postRequest(this.restUrl + '/' + solarSystemId + '/integration', integrationData);
+  }
+
+  deleteIntegration(solarSystemId: number, integrationCode: string): Observable<any> {
+    return this.serverService.deleteRequest(this.restUrl + '/' + solarSystemId + '/integration/' + integrationCode);
+  }
+
   getAuditLog(sort: string, order: string, pageIndex: number, pageSize: number, id: number): any {
     // TODO
   }

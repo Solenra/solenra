@@ -102,7 +102,7 @@
                 <mat-card-actions>
                   @if (solarSystemIntegration.status.code === 'expired-credentials' || solarSystemIntegration.status.code === 'setup') {
                     @if (solarSystemIntegration.integration.code === 'solaredge_v2') {
-                      <a mat-raised-button [href]="'https://connect.solaredge.com/authorize?client_id=' + solarSystemIntegration.integration.clientId + '&external_id=' + solarSystemId">
+                      <a mat-raised-button [href]="'https://connect.solaredge.com/authorize?client_id=' + integrationClientIds[solarSystemIntegration.integration.code] + '&external_id=' + solarSystemId">
                         @if (solarSystemIntegration.status.code === 'setup') {
                           Connect
                         } @else {
@@ -111,7 +111,7 @@
                       </a>
                     }
                   }
-                  <button type="button" mat-raised-button color="warn">Delete</button>
+                  <button type="button" mat-raised-button color="warn" (click)="onClickDeleteIntegration(solarSystemIntegration)">Delete</button>
                 </mat-card-actions>
               </mat-card>
             </div>
@@ -123,7 +123,7 @@
                 <mat-card-title>Add integration</mat-card-title>
               </mat-card-header>
               <mat-card-actions>
-                <button type="button" mat-raised-button>Connect to service</button>
+                <button type="button" mat-raised-button (click)="onClickConnectIntegration()">Connect to service</button>
               </mat-card-actions>
             </mat-card>
           </div>

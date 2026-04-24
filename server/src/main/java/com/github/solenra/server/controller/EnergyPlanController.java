@@ -4,7 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,20 +53,21 @@ public class EnergyPlanController {
 
     @RequestMapping("/get")
     public EnergyPlanDto get(@RequestParam Long id) {
-        // TODO permission check
+        // TODO permission check in service
         return energyPlanService.getEnergyPlan(id);
     }
 
     @PostMapping("/save")
     public EnergyPlanDto save(@RequestBody EnergyPlanDto energyPlan) {
-        // TODO permission check
+        // TODO permission check in service
         return energyPlanService.saveEnergyPlan(energyPlan);
     }
 
-    @PostMapping("/delete")
-    public void delete(@RequestParam Long id) {
-        // TODO permission check
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete(@RequestParam Long id) {
+        // TODO permission check in service
         energyPlanService.deleteEnergyPlan(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

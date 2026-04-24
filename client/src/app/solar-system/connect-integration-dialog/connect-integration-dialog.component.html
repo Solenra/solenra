@@ -1,0 +1,38 @@
+<h1 matDialogTitle>Connect to Service</h1>
+<div mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Integration</mat-label>
+      <mat-select formControlName="integrationCode">
+        <mat-option *ngFor="let integration of integrations" [value]="integration.code">
+          {{ integration.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('integrationCode')?.hasError('required')">
+        Integration is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" *ngIf="isSystemIdRequired()">
+      <mat-label>Site ID</mat-label>
+      <input matInput formControlName="systemId" placeholder="Enter SolarEdge Site ID">
+      <mat-error *ngIf="form.get('systemId')?.hasError('required')">
+        Site ID is required for SolarEdge v1
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" *ngIf="isApiKeyRequired()">
+      <mat-label>API Key</mat-label>
+      <input matInput formControlName="apiKey" type="password" placeholder="Enter SolarEdge API Key">
+      <mat-error *ngIf="form.get('apiKey')?.hasError('required')">
+        API Key is required for SolarEdge v1
+      </mat-error>
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onConnect()" [disabled]="!form.valid">
+    Connect
+  </button>
+</div>

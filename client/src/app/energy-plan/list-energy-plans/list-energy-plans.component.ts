@@ -18,6 +18,7 @@ import { forkJoin } from 'rxjs';
 import { EditFieldsDialogComponent } from '../../core/component/edit-fields-dialog/edit-fields-dialog.component';
 import { PageHeaderComponent } from '../../core/component/page-header/page-header.component';
 import { EnergyPlanService } from '../../core/service/energy-plan.service';
+import { ConfirmationDialogComponent } from '../../core/component/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-list-energy-plans',
@@ -82,10 +83,10 @@ export class ListEnergyPlansComponent implements OnInit {
         for (const p of plans) {
           saves.push(this.energyPlanService.save(p));
         }
-        forkJoin([saves]).subscribe({
-          next: () => this.load(),
-          error: (e: any) => console.error('Import save error', e)
-        });
+        Promise.all(saves.map(obs => obs.toPromise())).then(
+          () => this.load(),
+          (e: any) => console.error('Import save error', e)
+        );
       } catch (err) {
         console.error('CSV parse error', err);
       }
@@ -148,33 +149,121 @@ export class ListEnergyPlansComponent implements OnInit {
     const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
     if (lines.length <= 1) { return []; }
     const rows = lines.map(line => this.simpleCsvParseLine(line));
+    const headerRow = rows[0].map(h => String(h || '').trim().toLowerCase());
+    const getIndex = (name: string) => headerRow.indexOf(name.toLowerCase());
+
+    const planIdIndex = getIndex('planId');
+    const planNameIndex = getIndex('planName');
+    const planNotesIndex = getIndex('planNotes');
+    const sharedIndex = getIndex('shared');
+    const supplyRateValueIndex = getIndex('supplyRateValue');
+    const exportRateValueIndex = getIndex('exportRateValue');
+    const rateIdIndex = getIndex('rateId');
+    const rateNameIndex = getIndex('rateName');
+    const rateValueIndex = getIndex('rateValue');
+    const comparativeRateValueIndex = getIndex('comparativeRateValue');
+    const periodIdIndex = getIndex('periodId');
+    const daysOfWeekIndex = getIndex('daysOfWeek');
+    const startTimeIndex = getIndex('startTime');
+    const endTimeIndex = getIndex('endTime');
+
     const dataRows = rows.slice(1);
     const plansMap = new Map<string, any>();
-    for (const r of dataRows) {
-      const [planId, planName, planNotes, shared, supplyRateValue, exportRateValue, rateId, rateName, rateValue, comparativeRateValue, periodId, daysOfWeek, startTime, endTime] = r;
-      const planKey = planId || planName;
+    for (const row of dataRows) {
+      const planId = planIdIndex >= 0 ? row[planIdIndex] : undefined;
+      const planName = planNameIndex >= 0 ? row[planNameIndex] : undefined;
+      const planNotes = planNotesIndex >= 0 ? row[planNotesIndex] : undefined;
+      const shared = sharedIndex >= 0 ? row[sharedIndex] : undefined;
+      const supplyRateValue = supplyRateValueIndex >= 0 ? row[supplyRateValueIndex] : undefined;
+      const exportRateValue = exportRateValueIndex >= 0 ? row[exportRateValueIndex] : undefined;
+      const rateId = rateIdIndex >= 0 ? row[rateIdIndex] : undefined;
+      const rateName = rateNameIndex >= 0 ? row[rateNameIndex] : undefined;
+      const rateValue = rateValueIndex >= 0 ? row[rateValueIndex] : undefined;
+      const comparativeRateValue = comparativeRateValueIndex >= 0 ? row[comparativeRateValueIndex] : undefined;
+      const periodId = periodIdIndex >= 0 ? row[periodIdIndex] : undefined;
+      const daysOfWeek = daysOfWeekIndex >= 0 ? row[daysOfWeekIndex] : undefined;
+      const startTime = startTimeIndex >= 0 ? row[startTimeIndex] : undefined;
+      const endTime = endTimeIndex >= 0 ? row[endTimeIndex] : undefined;
+
+      if (!planId && !planName) {
+        continue;
+      }
+
+      const planKey = planId || planName || '';
       let plan = plansMap.get(planKey);
       if (!plan) {
-        plan = { id: planId ? Number(planId) : undefined, name: planName, notes: planNotes, shared: shared === 'true' || shared === 'True', supplyRateValue: supplyRateValue ? Number(supplyRateValue) : null, exportRateValue: exportRateValue ? Number(exportRateValue) : null, energyPlanRates: [] };
+        plan = {
+          id: planId ? Number(planId) : undefined,
+          name: planName,
+          notes: planNotes,
+          shared: shared === 'true' || shared === 'True',
+          supplyRateValue: supplyRateValue ? Number(supplyRateValue) : null,
+          exportRateValue: exportRateValue ? Number(exportRateValue) : null,
+          energyPlanRates: []
+        };
         plansMap.set(planKey, plan);
       }
+
       if (!rateName) { continue; }
+
       let rate = plan.energyPlanRates.find((x: any) => String(x.rateName) === String(rateName) && (x.id || '') === (rateId || ''));
       if (!rate) {
-        rate = { id: rateId ? Number(rateId) : undefined, rateName, rateValue: rateValue ? Number(rateValue) : null, comparativeRateValue: comparativeRateValue ? Number(comparativeRateValue) : null, energyPlanRatePeriods: [] };
+        rate = {
+          id: rateId ? Number(rateId) : undefined,
+          rateName,
+          rateValue: rateValue ? Number(rateValue) : null,
+          comparativeRateValue: comparativeRateValue ? Number(comparativeRateValue) : null,
+          energyPlanRatePeriods: []
+        };
         plan.energyPlanRates.push(rate);
       }
+
       if (startTime || endTime || daysOfWeek) {
         const days = (daysOfWeek || '').split(';').filter((d: string) => d).map((d: string) => ({ dayOfWeek: d }));
-        const period: any = { id: periodId ? Number(periodId) : undefined, daysOfWeek: days, startTime: startTime || null, endTime: endTime || null };
+        const period: any = {
+          id: periodId ? Number(periodId) : undefined,
+          daysOfWeek: days,
+          startTime: startTime ? this.normalizeTimeString(startTime) : null,
+          endTime: endTime ? this.normalizeTimeString(endTime) : null
+        };
         rate.energyPlanRatePeriods.push(period);
       }
     }
     return Array.from(plansMap.values());
   }
 
+  normalizeTimeString(value: any): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (!normalized) {
+      return null;
+    }
+
+    const parts = normalized.split(':').map(p => p.trim());
+    if (parts.length === 0) {
+      return null;
+    }
+
+    const padded = parts.map((part, index) => {
+      if (part === '') {
+        return '00';
+      }
+      return part.padStart(2, '0');
+    });
+
+    if (padded.length === 1) {
+      return `${padded[0]}:00:00`;
+    }
+    if (padded.length === 2) {
+      return `${padded[0]}:${padded[1]}:00`;
+    }
+    return `${padded[0]}:${padded[1]}:${padded[2]}`;
+  }
+
   simpleCsvParseLine(line: string): string[] {
-    // rudimentary CSV parser handling quoted fields
+    // CSV parser handling quoted fields
     const result: string[] = [];
     let cur = '';
     let inQuotes = false;
@@ -268,8 +357,22 @@ export class ListEnergyPlansComponent implements OnInit {
   }
 
   delete(id: number): void {
-    if (!confirm('Delete this energy plan?')) { return; }
-    this.energyPlanService.delete(id).subscribe(() => this.load());
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Confirm Delete',
+        text: 'Are you sure you want to delete this energy plan?',
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        confirmEventEmit: true
+      }
+    });
+
+    dialogRef.componentInstance.onConfirm.subscribe(() => {
+      this.energyPlanService.delete(id).subscribe(() => {
+        dialogRef.close();
+        this.load();
+      });
+    });
   }
 
 

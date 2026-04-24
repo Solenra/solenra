@@ -14,6 +14,8 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
 import { EditFieldsDialogComponent } from '../../core/component/edit-fields-dialog/edit-fields-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ConnectIntegrationDialogComponent } from '../connect-integration-dialog/connect-integration-dialog.component';
+import { ConfirmationDialogComponent } from '../../core/component/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-view-solar-system',
@@ -49,6 +51,7 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
   currencySymbol = '$';
   integrations: Integration[] = [];
   reloadSubscription: Subscription | undefined;
+  integrationClientIds: { [key: string]: string | undefined } = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -88,6 +91,9 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
         let hasReloadSub = false;
         if (this.solarSystem?.solarSystemIntegrations) {
           for (const solarSystemIntegration of this.solarSystem.solarSystemIntegrations) {
+            if (solarSystemIntegration.integration.credentials.find((cred: any) => cred.type === 'client-id')) {
+              this.integrationClientIds[solarSystemIntegration.integration.code] = solarSystemIntegration.integration.credentials.find((cred: any) => cred.type === 'client-id')?.value;
+            }
             if (solarSystemIntegration.status?.autoReload && (!this.reloadSubscription || this.reloadSubscription.closed)) {
               this.reloadSubscription = interval(10000)
                 .subscribe((val) => {
@@ -196,6 +202,52 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
         this.loadingSolarSystemError = true;
       },
       complete: () => { }
+    });
+  }
+
+  onClickConnectIntegration(): void {
+    const dialogRef = this.dialog.open(ConnectIntegrationDialogComponent, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.solarSystemService.saveIntegration(this.solarSystemId!, result).subscribe({
+          next: () => {
+            this.loadSolarSystem(false);
+          },
+          error: (err: any) => {
+            console.error('Error connecting integration:', err);
+            // TODO: Show error message to user
+          }
+        });
+      }
+    });
+  }
+
+  onClickDeleteIntegration(solarSystemIntegration: any): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Confirm Delete',
+        text: `Are you sure you want to delete the ${solarSystemIntegration.integration.name} integration?`,
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        confirmEventEmit: true
+      }
+    });
+
+    dialogRef.componentInstance.onConfirm.subscribe(() => {
+      this.solarSystemService.deleteIntegration(this.solarSystemId!, solarSystemIntegration.integration.code).subscribe({
+        next: () => {
+          dialogRef.close();
+          this.loadSolarSystem(false);
+        },
+        error: (err: any) => {
+          console.error('Error deleting integration:', err);
+          dialogRef.close();
+          // TODO: Show error message to user
+        }
+      });
     });
   }
 

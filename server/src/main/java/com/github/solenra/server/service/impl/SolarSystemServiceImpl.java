@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.solenra.server.entity.*;
 import com.github.solenra.server.entity.integration.SystemEnergyDetails;
@@ -29,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 
+@Transactional
 @Service("solarSystemService")
 public class SolarSystemServiceImpl implements SolarSystemService {
 
@@ -43,6 +45,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private final IntegrationRepository integrationRepository;
     private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
     private final SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository;
+    private final SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository;
 
     public SolarSystemServiceImpl(
             SolaredgeApiService solaredgeApiService,
@@ -53,7 +56,8 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             IntegrationRepository integrationRepository,
             SystemEnergyDetailsRepository systemEnergyDetailsRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
-            SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository
+            SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository,
+            SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository
     ) {
         this.solaredgeApiService = solaredgeApiService;
         this.energyPlanService = energyPlanService;
@@ -64,6 +68,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.solarSystemIntegrationStatusRepository = solarSystemIntegrationStatusRepository;
+        this.solarSystemIntegrationAuthCredentialRepository = solarSystemIntegrationAuthCredentialRepository;
     }
 
     private SolarSystem getSolarSystem(Long id) {
@@ -220,6 +225,11 @@ public class SolarSystemServiceImpl implements SolarSystemService {
                     }
 
                     transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, statusCode, nextUpdateTime);
+
+                    if (SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR.equals(statusCode)) {
+                        // TODO show error message to user, with retry button which sets status back to pending
+                    }
+
                 }
 
             } else {
@@ -254,19 +264,71 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + integrationData.get("code") + "] already exists for solar system with ID [" + id + "].");
         }
 
+        String initialStatusCode = SolarSystemIntegrationStatus.CODE_PENDING;
+        if (Integration.CODE_SOLAREDGE_V2.equals(integration.getCode())) {
+            initialStatusCode = SolarSystemIntegrationStatus.CODE_SETUP;
+        }
+
         SolarSystemIntegration solarSystemIntegration = new SolarSystemIntegration();
         solarSystemIntegration.setSolarSystem(solarSystem);
         solarSystemIntegration.setIntegration(integration);
         solarSystemIntegration.setEnabled(true);
-        solarSystemIntegration.setStatus(solarSystemIntegrationStatusRepository.findByCode(SolarSystemIntegrationStatus.CODE_PENDING));
+        solarSystemIntegration.setStatus(solarSystemIntegrationStatusRepository.findByCode(initialStatusCode));
 
         // Save the new integration
         solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
+
+        // Save additional integration details from integrationData map
+        if (Integration.CODE_SOLAREDGE_V1.equals(integration.getCode())) {
+            String systemId = integrationData.get("system-id");
+            if (systemId != null && !systemId.trim().isEmpty()) {
+                SolarSystemIntegrationAuthCredential credential = new SolarSystemIntegrationAuthCredential();
+                credential.setSolarSystemIntegration(solarSystemIntegration);
+                credential.setType(SolarSystemIntegrationAuthCredential.TYPE_SYSTEM_ID);
+                credential.setValue(systemId.trim());
+                solarSystemIntegrationAuthCredentialRepository.save(credential);
+            } else {
+                throw new ApplicationException(HttpStatus.BAD_REQUEST, "System ID is required for SolarEdge integration.");
+            }
+
+            String apiKey = integrationData.get("api-key");
+            if (apiKey != null && !apiKey.trim().isEmpty()) {
+                SolarSystemIntegrationAuthCredential credential = new SolarSystemIntegrationAuthCredential();
+                credential.setSolarSystemIntegration(solarSystemIntegration);
+                credential.setType(SolarSystemIntegrationAuthCredential.TYPE_API_KEY);
+                credential.setValue(apiKey.trim());
+                solarSystemIntegrationAuthCredentialRepository.save(credential);
+            } else {
+                throw new ApplicationException(HttpStatus.BAD_REQUEST, "API key is required for SolarEdge integration.");
+            }
+        }
+
     }
 
     @Override
     public void deleteSolarSystemIntegration(Principal principal, Long id, String code) {
         // TODO permission check
+
+        // TODO check/wait for any running data load jobs for this integration and delay deletion if any running, or cancel them
+
+        SolarSystem solarSystem = getSolarSystem(id);
+        Integration integration = integrationRepository.findByCode(code);
+
+        if (integration == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + code + "] not found.");
+        }
+
+        SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findBySolarSystemAndIntegration(solarSystem, integration);
+
+        if (solarSystemIntegration == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + code + "] not found for solar system with ID [" + id + "].");
+        }
+
+        // Delete associated credentials first
+        solarSystemIntegrationAuthCredentialRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
+
+        // Delete the integration
+        solarSystemIntegrationRepository.delete(solarSystemIntegration);
     }
 
 }

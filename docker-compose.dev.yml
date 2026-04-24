@@ -13,6 +13,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:h2:file:/data/solenra.h2.db
       - SPRING_H2_CONSOLE_ENABLED=true
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
     volumes:
       - ${DB_DATA_LOCATION:-solenra-data}:/data
 

@@ -62,7 +62,7 @@ public class IntegrationLoadJob extends QuartzJobBean {
                         SolarSystemIntegrationStatus.CODE_UP_TO_DATE,
                         SolarSystemIntegrationStatus.CODE_PENDING,
                         //SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_TRANSIENT_ERROR,
-                        SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR, // TODO remove this..?
+ //                       SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR, // TODO remove this..?
                         SolarSystemIntegrationStatus.CODE_DISABLED
 
                         // TODO remove this

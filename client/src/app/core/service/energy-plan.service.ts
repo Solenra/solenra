@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {ServerService} from './server.service';
 import {Observable} from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,9 @@ export class EnergyPlanService {
   }
 
   delete(id: number): Observable<any> {
-    return this.serverService.getRequest(this.restUrl + '/delete', { id: String(id) });
+    let params: HttpParams = new HttpParams();
+    params = params.set('id', String(id));
+    return this.serverService.deleteRequest(this.restUrl + '/delete', params);
   }
 
 }

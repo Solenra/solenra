@@ -19,6 +19,8 @@ public interface SolarSystemIntegrationRepository extends JpaRepository<SolarSys
 
     List<SolarSystemIntegration> findAllBySolarSystemId(Long solarSystemId);
 
+    SolarSystemIntegration findBySolarSystemAndIntegration(SolarSystem solarSystem, Integration integration);
+
     List<SolarSystemIntegration> findAllByStatusCodeInAndEnabledAndIntegrationEnabledAndProcessingHeartbeatAtLessThan(
             List<String> statusCodes, boolean enabled, boolean integrationEnabled, ZonedDateTime heartbeatTimeout);
 

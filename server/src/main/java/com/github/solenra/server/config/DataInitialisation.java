@@ -170,7 +170,7 @@ public class DataInitialisation {
                 case SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR:
                     name = "Error loading data";
                     displayOrder = 5000L;
-                    autoReload = true;
+                    autoReload = false;
                     break;
                 case SolarSystemIntegrationStatus.CODE_UP_TO_DATE:
                     name = "Connected";

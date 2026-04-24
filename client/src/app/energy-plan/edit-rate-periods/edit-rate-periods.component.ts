@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EditFieldsDialogComponent } from '../../core/component/edit-fields-dialog/edit-fields-dialog.component';
 import { PageHeaderComponent } from '../../core/component/page-header/page-header.component';
 import { EnergyPlanService } from '../../core/service/energy-plan.service';
+import { ConfirmationDialogComponent } from '../../core/component/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-edit-rate-periods',
@@ -61,12 +62,23 @@ export class EditRatePeriodsComponent implements OnInit {
   }
 
   deleteRate(rate: any): void {
-    if (!confirm('Delete this rate?')) { return; }
-    const idx = this.energyPlan.energyPlanRates.findIndex((r: any) => r.id === rate.id);
-    if (idx !== -1) {
-      this.energyPlan.energyPlanRates.splice(idx, 1);
-      this.savePlan();
-    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Confirm Delete',
+        text: 'Are you sure you want to delete this rate?',
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        confirmEventEmit: true
+      }
+    });
+
+    dialogRef.componentInstance.onConfirm.subscribe(() => {
+      const idx = this.energyPlan.energyPlanRates.findIndex((r: any) => r.id === rate.id);
+      if (idx !== -1) {
+        this.energyPlan.energyPlanRates.splice(idx, 1);
+        this.savePlan(() => dialogRef.close());
+      }
+    });
   }
 
   editPeriods(rate: any): void {
@@ -137,11 +149,22 @@ export class EditRatePeriodsComponent implements OnInit {
   }
 
   deletePeriod(rate: any, periodIdx: number): void {
-    if (!confirm('Delete this period?')) { return; }
-    if (rate.energyPlanRatePeriods) {
-      rate.energyPlanRatePeriods.splice(periodIdx, 1);
-      this.savePlan();
-    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Confirm Delete',
+        text: 'Are you sure you want to delete this period?',
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        confirmEventEmit: true
+      }
+    });
+
+    dialogRef.componentInstance.onConfirm.subscribe(() => {
+      if (rate.energyPlanRatePeriods) {
+        rate.energyPlanRatePeriods.splice(periodIdx, 1);
+        this.savePlan(() => dialogRef.close());
+      }
+    });
   }
 
   openRateDialog(rate?: any): void {

@@ -18,6 +18,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-solenra}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-supersecret}
       - SPRING_APPLICATION_JSON={"spring":{"quartz":{"properties":{"org.quartz.jobStore.driverDelegateClass":"org.quartz.impl.jdbcjobstore.PostgreSQLDelegate"}}}}
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
 
   postgres:
     image: postgres:16

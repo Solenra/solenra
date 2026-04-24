@@ -9,9 +9,12 @@
     <section class="intro">
         <h1>Welcome to Solenra</h1>
         <p>Track your solar investment returns — ROI, payback period, and savings from self-consumption and export tariffs.</p>
-        <a mat-raised-button color="accent" href="https://github.com/Solenra/Solenra" target="_blank">
-            Get Started on GitHub
-        </a>
+        <button mat-raised-button color="accent" *ngIf="!isLoggedIn()" routerLink="/login">
+            Register/Login to get started
+        </button>
+        <button mat-raised-button color="accent" *ngIf="isLoggedIn()" routerLink="/solar-systems">
+            Add/view your solar system details
+        </button>
     </section>
 
     <section class="features">

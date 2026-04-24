@@ -14,4 +14,6 @@ public interface SolarSystemIntegrationAuthCredentialRepository extends JpaRepos
 
     void deleteAllBySolarSystemIntegrationIdAndTypeIn(Long solarSystemIntegrationId, List<String> typeCodes);
 
+    void deleteAllBySolarSystemIntegrationId(Long solarSystemIntegrationId);
+
 }

@@ -37,7 +37,14 @@ export interface Integration {
   code: string;
   name: string;
   enabled: boolean;
-  clientId: string;
+  credentials: IntegrationCredential[];
+
+}
+
+export interface IntegrationCredential {
+
+  type: string;
+  value: string;
 
 }
 
