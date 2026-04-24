@@ -72,13 +72,21 @@ public class SystemDetails implements Serializable {
         systemDetails.setStatus(details.getActivationStatus());
         systemDetails.setPeakPower(String.valueOf(details.getPeakPower()));
         systemDetails.setTimezone(solarSystemIntegration.getTimezone());
-        systemDetails.setInstallationDate(
-                ZonedDateTime.of(
-                        details.installationDate.toLocalDate(),
-                        LocalTime.MIDNIGHT,
-                        ZoneId.of(solarSystemIntegration.getTimezone())
-                )
-        );
+        ZonedDateTime installationDate = null;
+        if (solarSystemIntegration.getTimezone() != null) {
+            installationDate = ZonedDateTime.of(
+                    details.installationDate.toLocalDate(),
+                    LocalTime.MIDNIGHT,
+                    ZoneId.of(solarSystemIntegration.getTimezone())
+            );
+        } else {
+            installationDate = ZonedDateTime.of(
+                    details.installationDate.toLocalDate(),
+                    LocalTime.MIDNIGHT,
+                    ZoneId.systemDefault()
+            );
+        }
+        systemDetails.setInstallationDate(installationDate);
         return systemDetails;
     }
 
