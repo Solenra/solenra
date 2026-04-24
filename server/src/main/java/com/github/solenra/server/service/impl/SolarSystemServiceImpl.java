@@ -18,6 +18,7 @@ import com.github.solenra.server.model.SolarSystemDto;
 import com.github.solenra.server.model.SystemEnergyDetailsDto;
 import com.github.solenra.server.model.SystemEnergyDetailsRevenueDto;
 import com.github.solenra.server.repository.*;
+import com.github.solenra.server.repository.integration.SystemDetailsRepository;
 import com.github.solenra.server.repository.integration.SystemEnergyDetailsRepository;
 import com.github.solenra.server.service.EnergyPlanService;
 import com.github.solenra.server.service.SolarSystemService;
@@ -43,6 +44,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private final SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository;
     private final SolarSystemRepository solarSystemRepository;
     private final IntegrationRepository integrationRepository;
+    private final SystemDetailsRepository systemDetailsRepository;
     private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
     private final SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository;
     private final SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository;
@@ -54,6 +56,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository,
             SolarSystemRepository solarSystemRepository,
             IntegrationRepository integrationRepository,
+            SystemDetailsRepository systemDetailsRepository,
             SystemEnergyDetailsRepository systemEnergyDetailsRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository,
@@ -65,6 +68,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         this.systemEnergyDetailsRevenueRepository = systemEnergyDetailsRevenueRepository;
         this.solarSystemRepository = solarSystemRepository;
         this.integrationRepository = integrationRepository;
+        this.systemDetailsRepository = systemDetailsRepository;
         this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.solarSystemIntegrationStatusRepository = solarSystemIntegrationStatusRepository;
@@ -95,7 +99,6 @@ public class SolarSystemServiceImpl implements SolarSystemService {
 
         boolean recalculate = false;
 
-        System.out.println("### Saving SolarSystem ID: " + solarSystemDto.getId());
         if (solarSystemDto.getId() != null) {
             solarSystem = getSolarSystem(solarSystemDto.getId());
             if (bigDecimalsChanged(solarSystem.getOutlayCost(), solarSystemDto.getOutlayCost())) {
@@ -275,6 +278,10 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         solarSystemIntegration.setEnabled(true);
         solarSystemIntegration.setStatus(solarSystemIntegrationStatusRepository.findByCode(initialStatusCode));
 
+        if (integrationData.containsKey("timezone")) {
+            solarSystemIntegration.setTimezone(integrationData.get("timezone"));
+        }
+
         // Save the new integration
         solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
 
@@ -326,6 +333,11 @@ public class SolarSystemServiceImpl implements SolarSystemService {
 
         // Delete associated credentials first
         solarSystemIntegrationAuthCredentialRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
+
+        // Delete any integration-specific metadata before removing the integration
+        systemDetailsRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
+        systemEnergyDetailsRevenueRepository.deleteAllBySystemEnergyDetailsSolarSystemIntegrationId(solarSystemIntegration.getId());
+        systemEnergyDetailsRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
 
         // Delete the integration
         solarSystemIntegrationRepository.delete(solarSystemIntegration);

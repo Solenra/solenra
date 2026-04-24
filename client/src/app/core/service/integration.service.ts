@@ -13,6 +13,10 @@ export class IntegrationService {
     return this.serverService.getRequest('/server/api/integration/list');
   }
 
+  getTimezones(): Observable<string[]> {
+    return this.serverService.getRequest('/server/api/integration/timezones');
+  }
+
   save(integration: any): Observable<any> {
     return this.serverService.postRequest('/server/api/integration', integration);
   }

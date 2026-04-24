@@ -11,4 +11,6 @@ public interface SystemDetailsRepository extends JpaRepository<SystemDetails, Lo
 
     List<SystemDetails> findAllBySolarSystemIntegrationSolarSystemAndInstallationDateNotNull(SolarSystem solarSystem);
 
+    void deleteAllBySolarSystemIntegrationId(Long solarSystemIntegrationId);
+
 }

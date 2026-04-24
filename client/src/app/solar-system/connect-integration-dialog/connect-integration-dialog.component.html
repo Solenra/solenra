@@ -13,6 +13,28 @@
       </mat-error>
     </mat-form-field>
 
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Timezone</mat-label>
+      <mat-select formControlName="timezone" panelClass="timezone-select-panel">
+        <mat-option class="option-full-width">
+          <mat-form-field appearance="fill" subscriptSizing="dynamic">
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Search..."
+              [formControl]="timezoneFilter"
+              (click)="$event.stopPropagation()">
+          </mat-form-field>
+        </mat-option>
+        <mat-option *ngFor="let timezone of filteredTimezones" [value]="timezone">
+          {{ timezone }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('timezone')?.hasError('required')">
+        Timezone is required
+      </mat-error>
+    </mat-form-field>
+
     <mat-form-field appearance="outline" class="full-width" *ngIf="isSystemIdRequired()">
       <mat-label>Site ID</mat-label>
       <input matInput formControlName="systemId" placeholder="Enter SolarEdge Site ID">

@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -29,6 +29,9 @@ export class ConnectIntegrationDialogComponent {
 
   form: FormGroup;
   integrations: any[] = [];
+  timezones: string[] = [];
+  filteredTimezones: string[] = [];
+  timezoneFilter: FormControl = new FormControl('');
 
   constructor(
     private fb: FormBuilder,
@@ -38,8 +41,13 @@ export class ConnectIntegrationDialogComponent {
   ) {
     this.form = this.fb.group({
       integrationCode: ['', Validators.required],
+      timezone: ['', Validators.required],
       systemId: [''],
       apiKey: ['']
+    });
+
+    this.timezoneFilter.valueChanges.subscribe(value => {
+      this.applyTimezoneFilter(value);
     });
 
     // Load available integrations
@@ -50,6 +58,16 @@ export class ConnectIntegrationDialogComponent {
       },
       error: (err: any) => {
         console.error('Error loading integrations:', err);
+      }
+    });
+
+    this.integrationService.getTimezones().subscribe({
+      next: (timezones: string[]) => {
+        this.timezones = timezones;
+        this.filteredTimezones = [...timezones];
+      },
+      error: (err: any) => {
+        console.error('Error loading timezones', err);
       }
     });
 
@@ -80,14 +98,16 @@ export class ConnectIntegrationDialogComponent {
   onConnect(): void {
     if (this.form.valid) {
       const formValue = this.form.value;
-      const result: { code: string; 'system-id'?: string; 'api-key'?: string } = {
-        code: formValue.integrationCode
+      const result: { code: string; 'system-id'?: string; 'api-key'?: string; timezone: string } = {
+        code: formValue.integrationCode,
+        timezone: formValue.timezone
       };
 
       if (formValue.integrationCode === 'solaredge_v1') {
         result['system-id'] = formValue.systemId;
         result['api-key'] = formValue.apiKey;
       }
+      result['timezone'] = formValue.timezone;
 
       this.dialogRef.close(result);
     }
@@ -99,6 +119,11 @@ export class ConnectIntegrationDialogComponent {
 
   isApiKeyRequired(): boolean {
     return this.form.get('integrationCode')?.value === 'solaredge_v1';
+  }
+
+  applyTimezoneFilter(filter: string): void {
+    const normalizedFilter = filter ? filter.toLowerCase() : '';
+    this.filteredTimezones = this.timezones.filter(timezone => timezone.toLowerCase().includes(normalizedFilter));
   }
 
 }

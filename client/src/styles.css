@@ -120,3 +120,11 @@ table.data-table-table {
   max-width: 360px;
   text-align: center;
 }
+
+.option-full-width,
+.option-full-width > span,
+.option-full-width > span > mat-form-field {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
