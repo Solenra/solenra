@@ -44,8 +44,6 @@ public class IntegrationLoadJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        logger.info("Running IntegrationLoadJob...");
-
         // find halted processes and change status back to queued
         List<SolarSystemIntegration> solarSystemIntegrationsProcessingHalted = solarSystemIntegrationRepository.findAllByStatusCodeInAndEnabledAndIntegrationEnabledAndProcessingHeartbeatAtLessThan(
                 Arrays.asList(SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_QUEUED),
@@ -85,7 +83,10 @@ public class IntegrationLoadJob extends QuartzJobBean {
                 //ZonedDateTime.now()
                 ZonedDateTime.now().plusYears(1)
         );
-        logger.info("Queue processing for [" + solarSystemIntegrations.size() + "] solar system integrations.");
+
+        if (!solarSystemIntegrations.isEmpty()) {
+            logger.info("Queue processing for [" + solarSystemIntegrations.size() + "] solar system integrations.");
+        }
 
         for (SolarSystemIntegration solarSystemIntegration : solarSystemIntegrations) {
             JobDataMap jobDataMap = new JobDataMap();
