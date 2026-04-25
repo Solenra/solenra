@@ -25,8 +25,6 @@ import com.github.solenra.server.service.SolarSystemService;
 import com.github.solenra.server.service.SolaredgeApiService;
 import com.github.solenra.server.service.TransactionHelperService;
 
-import jakarta.persistence.EntityManager;
-
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.ZonedDateTime;
@@ -42,7 +40,6 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private final SolaredgeApiService solaredgeApiService;
     private final EnergyPlanService energyPlanService;
     private final TransactionHelperService transactionHelperService;
-    private final EntityManager entityManager;
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository;
     private final SolarSystemRepository solarSystemRepository;
@@ -56,7 +53,6 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             SolaredgeApiService solaredgeApiService,
             EnergyPlanService energyPlanService,
             TransactionHelperService transactionHelperService,
-            EntityManager entityManager,
             SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository,
             SolarSystemRepository solarSystemRepository,
             IntegrationRepository integrationRepository,
@@ -69,7 +65,6 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         this.solaredgeApiService = solaredgeApiService;
         this.energyPlanService = energyPlanService;
         this.transactionHelperService = transactionHelperService;
-        this.entityManager = entityManager;
         this.systemEnergyDetailsRevenueRepository = systemEnergyDetailsRevenueRepository;
         this.solarSystemRepository = solarSystemRepository;
         this.integrationRepository = integrationRepository;
@@ -330,26 +325,21 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + code + "] not found.");
         }
 
-        SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findBySolarSystemAndIntegration(solarSystem, integration);
+        Long integrationId = solarSystemIntegrationRepository.findIdBySolarSystemAndIntegration(solarSystem, integration);
 
-        if (solarSystemIntegration == null) {
+        if (integrationId == null) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + code + "] not found for solar system with ID [" + id + "].");
         }
-
-        Long integrationId = solarSystemIntegration.getId();
-
-        // Clear the persistence context to avoid auto-flush of transient references during delete queries
-        entityManager.clear();
 
         // Delete associated credentials first
         solarSystemIntegrationAuthCredentialRepository.deleteAllBySolarSystemIntegrationId(integrationId);
 
-        // Delete any integration-specific metadata before removing the integration
-        systemDetailsRepository.deleteAllBySolarSystemIntegrationId(integrationId);
+        // Delete any integration-specific records before deleting the integration
         systemEnergyDetailsRevenueRepository.deleteAllBySystemEnergyDetailsSolarSystemIntegrationId(integrationId);
         systemEnergyDetailsRepository.deleteAllBySolarSystemIntegrationId(integrationId);
+        systemDetailsRepository.deleteAllBySolarSystemIntegrationId(integrationId);
 
-        // Delete the integration by ID to avoid transient reference issues
+        // Delete the integration
         solarSystemIntegrationRepository.deleteById(integrationId);
     }
 
