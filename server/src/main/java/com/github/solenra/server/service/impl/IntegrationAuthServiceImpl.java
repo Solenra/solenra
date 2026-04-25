@@ -3,7 +3,6 @@ package com.github.solenra.server.service.impl;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -11,7 +10,6 @@ import org.springframework.web.client.RestClient;
 
 import com.github.solenra.server.entity.Integration;
 import com.github.solenra.server.entity.IntegrationAuthCredential;
-import com.github.solenra.server.entity.SolarSystemIntegration;
 import com.github.solenra.server.entity.SolarSystemIntegrationAuthCredential;
 import com.github.solenra.server.exceptions.ApplicationException;
 import com.github.solenra.server.model.solaredgev2.AuthCode;
@@ -19,8 +17,8 @@ import com.github.solenra.server.model.solaredgev2.BearerToken;
 import com.github.solenra.server.model.solaredgev2.RefreshToken;
 import com.github.solenra.server.repository.IntegrationAuthCredentialRepository;
 import com.github.solenra.server.repository.SolarSystemIntegrationAuthCredentialRepository;
-import com.github.solenra.server.repository.SolarSystemIntegrationRepository;
 import com.github.solenra.server.service.IntegrationAuthService;
+import com.github.solenra.server.service.TransactionHelperService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,28 +29,21 @@ import java.util.Objects;
 public class IntegrationAuthServiceImpl implements IntegrationAuthService {
 
     private final IntegrationAuthCredentialRepository integrationAuthCredentialRepository;
-    private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository;
+    private final TransactionHelperService transactionHelperService;
 
     private final RestClient solaredgeV2RestClient;
 
     public IntegrationAuthServiceImpl(
         IntegrationAuthCredentialRepository integrationAuthCredentialRepository,
-        SolarSystemIntegrationRepository solarSystemIntegrationRepository,
         SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository,
+        TransactionHelperService transactionHelperService,
         RestClient solaredgeV2RestClient
     ) {
         this.integrationAuthCredentialRepository = integrationAuthCredentialRepository;
-        this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.solarSystemIntegrationAuthCredentialRepository = solarSystemIntegrationAuthCredentialRepository;
+        this.transactionHelperService = transactionHelperService;
         this.solaredgeV2RestClient = solaredgeV2RestClient;
-    }
-
-    private SolarSystemIntegration getSolarSystemIntegration(Long id) {
-        return solarSystemIntegrationRepository.findById(id).orElseThrow(() -> {
-            String errorMessage = "SolarSystemIntegration with ID [" + id + "] not found.";
-            return new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
-        });
     }
 
     @Override
@@ -68,31 +59,8 @@ public class IntegrationAuthServiceImpl implements IntegrationAuthService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void saveCredential(Long solarSystemIntegrationId, String type, String value) {
-        SolarSystemIntegration solarSystemIntegration = null;
-        SolarSystemIntegrationAuthCredential credential = solarSystemIntegrationAuthCredentialRepository.findBySolarSystemIntegrationIdAndType(solarSystemIntegrationId, type);
-
-        if (credential == null) {
-            solarSystemIntegration = getSolarSystemIntegration(solarSystemIntegrationId);
-            credential = new SolarSystemIntegrationAuthCredential();
-            credential.setSolarSystemIntegration(solarSystemIntegration);
-            credential.setType(type);
-        }
-
-        credential.setValue(value);
-
-        credential = solarSystemIntegrationAuthCredentialRepository.save(credential);
-
-        if (SolarSystemIntegrationAuthCredential.TYPE_AUTH_CODE.equals(type)) {
-            // enable the integration now it is connected
-            if (solarSystemIntegration == null) {
-                solarSystemIntegration = getSolarSystemIntegration(solarSystemIntegrationId);
-            }
-
-            solarSystemIntegration.setEnabled(true);
-            solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
-        }
+        transactionHelperService.saveIntegrationAuthCredential(solarSystemIntegrationId, type, value);
     }
 
     @Override

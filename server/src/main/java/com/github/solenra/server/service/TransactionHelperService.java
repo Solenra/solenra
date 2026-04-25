@@ -8,4 +8,6 @@ public interface TransactionHelperService {
 
     void saveSolarSystemIntegrationProcessingHeartbeat(Long id, ZonedDateTime heartbeatZonedDateTime);
 
+    void saveIntegrationAuthCredential(Long solarSystemIntegrationId, String type, String value);
+
 }
