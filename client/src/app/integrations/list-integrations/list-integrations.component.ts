@@ -84,7 +84,7 @@ export class ListIntegrationsComponent implements OnInit {
       { controlName: 'enabled', label: 'Enabled', type: 'boolean', required: false }
     ];
 
-    for (const credential of integration.credentials) {
+    for (const credential of integration.credentials.sort((a: any, b: any) => a.type.localeCompare(b.type))) {
       formData[credential.type] = credential.value;
       formFields.push({ controlName: credential.type, label: credential.type, type: 'text', required: false, disabled: false });
     }

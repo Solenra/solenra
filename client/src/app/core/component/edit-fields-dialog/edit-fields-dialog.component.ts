@@ -63,7 +63,6 @@ export class EditFieldsDialogComponent implements OnInit, AfterContentInit {
 
   trackFormChanges() {
     for (const formField of this.data.formFields) {
-      console.log('Tracking form field:', formField.controlName); 
       if (formField.disabled) {
         const field = this.editFieldsForm.get(formField['controlName']);
         if (field) {
