@@ -102,7 +102,7 @@
                 <mat-card-actions>
                   @if (solarSystemIntegration.status.code === 'expired-credentials' || solarSystemIntegration.status.code === 'setup') {
                     @if (solarSystemIntegration.integration.code === 'solaredge_v2') {
-                      <a mat-raised-button [href]="'https://connect.solaredge.com/authorize?client_id=' + integrationClientIds[solarSystemIntegration.integration.code] + '&external_id=' + solarSystemId">
+                      <a mat-raised-button [href]="'https://connect.solaredge.com/authorize?client_id=' + integrationClientIds[solarSystemIntegration.integration.code] + '&external_id=' + solarSystemIntegration.id">
                         @if (solarSystemIntegration.status.code === 'setup') {
                           Connect
                         } @else {
