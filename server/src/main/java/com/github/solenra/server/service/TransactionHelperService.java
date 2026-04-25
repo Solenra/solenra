@@ -6,4 +6,6 @@ public interface TransactionHelperService {
 
     void saveSolarSystemIntegrationStatus(Long id, String statusCode, ZonedDateTime nextUpdateTime);
 
+    void saveSolarSystemIntegrationProcessingHeartbeat(Long id, ZonedDateTime heartbeatZonedDateTime);
+
 }

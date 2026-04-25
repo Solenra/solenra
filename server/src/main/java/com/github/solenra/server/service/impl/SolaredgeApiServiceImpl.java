@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,6 +28,7 @@ import com.github.solenra.server.service.HttpRequestService;
 import com.github.solenra.server.service.IntegrationAuthService;
 import com.github.solenra.server.service.SolaredgeApiService;
 import com.github.solenra.server.service.SystemEnergyDetailsService;
+import com.github.solenra.server.service.TransactionHelperService;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -45,6 +48,7 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
     private final SystemEnergyDetailsService systemEnergyDetailsService;
     private final HttpRequestService httpRequestService;
     private final IntegrationAuthService integrationAuthService;
+    private final TransactionHelperService transactionHelperService;
 
 	@Value("${int.solaredge.api.base-url}")
 	private String solaredgeApiUrl;
@@ -57,17 +61,19 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
             SystemEnergyDetailsRepository systemEnergyDetailsRepository,
             SystemEnergyDetailsService systemEnergyDetailsService,
             HttpRequestService httpRequestService,
-            IntegrationAuthService integrationAuthService
+            IntegrationAuthService integrationAuthService,
+            TransactionHelperService transactionHelperService
     ) {
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
         this.systemEnergyDetailsService = systemEnergyDetailsService;
         this.httpRequestService = httpRequestService;
         this.integrationAuthService = integrationAuthService;
+        this.transactionHelperService = transactionHelperService;
     }
 
     @Override
-    //@Transactional
+    @Transactional(readOnly = true)
     public void runDataLoad(Long solarSystemIntegrationId) {
         logger.info("Running SolarEdge API data load for solarSystemIntegrationId [{}]", solarSystemIntegrationId);
 
@@ -78,6 +84,7 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void runDataLoadV2(long solarSystemIntegrationId) {
         logger.info("Running SolarEdgeV2 API data load for solarSystemIntegrationId [{}]", solarSystemIntegrationId);
 
@@ -124,16 +131,17 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
             }
 
             systemDetailsDto = systemEnergyDetailsService.saveSystemDetailsNewTransaction(systemDetails, solarSystemIntegration.getId());
+
+            // TODO save in new transaction
+            /*if (solarSystemIntegration.getTimezone() == null) {
+                solarSystemIntegration.setTimezone(systemDetailsDto.getTimezone());
+                solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
+            }*/
         } else {
             systemDetailsDto = new SystemDetailsDto(systemDetails);
         }
         
         logger.debug("Processing system details {}", systemDetailsDto);
-
-        if (solarSystemIntegration.getTimezone() == null) {
-            solarSystemIntegration.setTimezone(systemDetailsDto.getTimezone());
-            solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
-        }
 
         ZoneId targetZone = ZoneId.of(solarSystemIntegration.getTimezone());
         ZonedDateTime processStartDate = systemDetailsDto.getInstallationDate().withZoneSameInstant(targetZone);
@@ -169,8 +177,7 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
                 if (ZonedDateTime.now().isAfter(heartbeatZonedDateTime.plus(heartbeatPeriod))) {
                     // update processing heartbeat
                     heartbeatZonedDateTime = ZonedDateTime.now();
-                    solarSystemIntegration.setProcessingHeartbeatAt(heartbeatZonedDateTime);
-                    solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
+                    transactionHelperService.saveSolarSystemIntegrationProcessingHeartbeat(solarSystemIntegration.getId(), heartbeatZonedDateTime);
                 }
 
                 logger.debug("Processing date: {}", date);

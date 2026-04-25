@@ -55,4 +55,16 @@ public class TransactionHelperServiceImpl implements TransactionHelperService {
         solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveSolarSystemIntegrationProcessingHeartbeat(Long solarSystemIntegrationId, ZonedDateTime heartbeat) {
+        SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findById(solarSystemIntegrationId).orElseThrow(() -> {
+            String errorMessage = "SolarSystemIntegration with ID [" + solarSystemIntegrationId + "] not found.";
+            return new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+        });
+
+        solarSystemIntegration.setProcessingHeartbeatAt(heartbeat);
+        solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
+    }
+
 }

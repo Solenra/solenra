@@ -1,5 +1,6 @@
 package com.github.solenra.server.service.impl;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ import com.github.solenra.server.service.SolaredgeApiService;
 import com.github.solenra.server.service.TransactionHelperService;
 
 import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -215,30 +217,34 @@ public class SolarSystemServiceImpl implements SolarSystemService {
 
                     transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_UP_TO_DATE, nextUpdateTime);
 
-                } catch (ExhaustedRetryException e) {
-                    logger.error("ExhaustedRetryException Error running data load for solarSystemIntegrationId [" + solarSystemIntegrationId + "]", e);
-                    transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_TRANSIENT_ERROR, nextUpdateTime);
                 } catch (Exception e) {
-                    // TODO set user message somewhere of cause...
+                    Throwable rootCause = ExceptionUtils.getRootCause(e);
 
-                    logger.error("Error running data load for solarSystemIntegrationId [" + solarSystemIntegrationId + "]", e);
+                    if (rootCause instanceof SocketTimeoutException || rootCause instanceof SocketTimeoutException) {
+                        logger.error("Transient error running data load for solarSystemIntegrationId [" + solarSystemIntegrationId + "]", e);
+                        transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_TRANSIENT_ERROR, nextUpdateTime);
+                    } else {
+                        // TODO set user message somewhere of cause...
 
-                    String statusCode = SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR;
+                        logger.error("Error running data load for solarSystemIntegrationId [" + solarSystemIntegrationId + "]", e);
 
-                    // check if cause is expired credentials and set specific status
-                    Throwable t = e;
-                    while (t != null) {
-                        if (CredentialsExpiredException.class.isInstance(t)) {
-                            statusCode = SolarSystemIntegrationStatus.CODE_EXPIRED_CREDENTIALS;
-                            break;
+                        String statusCode = SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR;
+
+                        // check if cause is expired credentials and set specific status
+                        Throwable t = e;
+                        while (t != null) {
+                            if (CredentialsExpiredException.class.isInstance(t)) {
+                                statusCode = SolarSystemIntegrationStatus.CODE_EXPIRED_CREDENTIALS;
+                                break;
+                            }
+                            t = t.getCause();
                         }
-                        t = t.getCause();
-                    }
 
-                    transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, statusCode, nextUpdateTime);
+                        transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, statusCode, nextUpdateTime);
 
-                    if (SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR.equals(statusCode)) {
-                        // TODO show error message to user, with retry button which sets status back to pending
+                        if (SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_ERROR.equals(statusCode)) {
+                            // TODO show error message to user, with retry button which sets status back to pending
+                        }
                     }
 
                 }
