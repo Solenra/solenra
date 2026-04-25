@@ -23,7 +23,7 @@ public class HttpRequestRetryServiceImpl implements HttpRequestRetryService {
 	private static final Logger logger = LoggerFactory.getLogger(HttpRequestRetryServiceImpl.class);
 
 	@Override
-	@Retryable(retryFor = RateLimitExceededException.class, maxAttempts = 24, backoff = @Backoff(random = true, delay = 240000, maxDelay = 480000, multiplier = 1))
+	@Retryable(retryFor = RateLimitExceededException.class, maxAttempts = 24, backoff = @Backoff(random = true, delay = 240000, maxDelay = 480000, multiplier = 1.1))
 	public <T, U> ResponseEntity<T> doHttpRequest(RestClient restClient, String requestUrl, URI requestUri, HttpMethod httpMethod, Class<T> responseBodyType, String accessToken) throws HttpRequestException {
 		ResponseEntity<T> response = null;
 

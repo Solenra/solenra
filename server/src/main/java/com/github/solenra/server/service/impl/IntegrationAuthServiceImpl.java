@@ -68,7 +68,7 @@ public class IntegrationAuthServiceImpl implements IntegrationAuthService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveCredential(Long solarSystemIntegrationId, String type, String value) {
         SolarSystemIntegration solarSystemIntegration = null;
         SolarSystemIntegrationAuthCredential credential = solarSystemIntegrationAuthCredentialRepository.findBySolarSystemIntegrationIdAndType(solarSystemIntegrationId, type);
