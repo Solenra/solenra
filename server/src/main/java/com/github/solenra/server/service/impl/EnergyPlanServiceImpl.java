@@ -141,12 +141,11 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
                 systemEnergyDetailsRevenue.setCalculationStatus(SystemEnergyDetailsRevenue.CALCULATION_STATUS_PENDING);
                 systemEnergyDetailsRevenue = systemEnergyDetailsRevenueRepository.saveAndFlush(systemEnergyDetailsRevenue);
             } else {
-                // TODO status, warning and message
-                String errorMessage = "EnergyPlanRatePeriod not found for systemEnergyDetails ID: [" + systemEnergyDetails.getId() + "], startDate: [" + startDate + "], endDate: [" + endDate + "], dayOfWeek: [" + dayOfWeek + "], startTimeUtc: [" + startTimeUtc + "], endTimeUtc: [" + endTimeUtc + "]";
-                throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+                // Rate period not found, nothing to calculate
+                // TODO set status, warning and message on systemEnergyDetailsRevenue for manual review in UI
             }
         } else {
-            // TODO set status, warning and message, rate period not found...
+            // TODO set status, warning and message, rate period spans multiple days which is not supported in current implementation, manual review in UI required
         }
 
     }
