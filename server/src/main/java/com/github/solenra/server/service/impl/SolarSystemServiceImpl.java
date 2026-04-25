@@ -89,6 +89,14 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     }
 
     @Override
+    public Long getSolarSystemIdByIntegration(Long solarSystemIntegrationId) {
+        return solarSystemIntegrationRepository.findById(solarSystemIntegrationId).orElseThrow(() -> {
+            String errorMessage = "SolarSystemIntegration with ID [" + solarSystemIntegrationId + "] not found.";
+            return new ApplicationException(HttpStatus.BAD_REQUEST, errorMessage);
+        }).getSolarSystem().getId();
+    }
+
+    @Override
     public SolarSystemDto saveSolarSystem(Principal principal, SolarSystemDto solarSystemDto) {
         // TODO permission check
         // TODO do not save duplicate integration details, reuse

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.github.solenra.server.entity.SolarSystemIntegrationAuthCredential;
 import com.github.solenra.server.entity.SolarSystemIntegrationStatus;
 import com.github.solenra.server.service.IntegrationAuthService;
+import com.github.solenra.server.service.SolarSystemService;
 import com.github.solenra.server.service.TransactionHelperService;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 public class IntegrationAuthController {
 
     private final IntegrationAuthService integrationAuthService;
+    private final SolarSystemService solarSystemService;
     private final TransactionHelperService transactionHelperService;
 
     @Value("${BASE_URL}")
@@ -27,9 +29,11 @@ public class IntegrationAuthController {
 
     public IntegrationAuthController(
             IntegrationAuthService integrationAuthService,
+            SolarSystemService solarSystemService,
             TransactionHelperService transactionHelperService
     ) {
         this.integrationAuthService = integrationAuthService;
+        this.solarSystemService = solarSystemService;
         this.transactionHelperService = transactionHelperService;
     }
 
@@ -48,8 +52,10 @@ public class IntegrationAuthController {
         integrationAuthService.deleteCredentials(solarSystemIntegrationId, Arrays.asList(SolarSystemIntegrationAuthCredential.TYPE_ACCESS_TOKEN, SolarSystemIntegrationAuthCredential.TYPE_REFRESH_TOKEN));
         transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_PENDING, null);
 
+        Long solarSystemId = solarSystemService.getSolarSystemIdByIntegration(solarSystemIntegrationId);
+
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", baseUrl + "/solar-systems/" + solarSystemIntegrationId);
+        headers.add("Location", baseUrl + "/solar-systems/" + solarSystemId);
 
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }

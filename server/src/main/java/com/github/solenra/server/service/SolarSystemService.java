@@ -12,6 +12,8 @@ import java.util.Map;
 
 public interface SolarSystemService {
 
+    Long getSolarSystemIdByIntegration(Long solarSystemIntegrationId);
+
     SolarSystemDto saveSolarSystem(Principal principal, SolarSystemDto solarSystem);
 
     Page<SolarSystemDto> searchSolarSystems(Principal principal, Long solarSystemId, Pageable pageable);
