@@ -80,8 +80,8 @@ public class IntegrationLoadJob extends QuartzJobBean {
                 ),
                 true,
                 true,
-                //ZonedDateTime.now()
-                ZonedDateTime.now().plusYears(1)
+                ZonedDateTime.now()
+                //ZonedDateTime.now().plusYears(1)
         );
 
         if (!solarSystemIntegrations.isEmpty()) {

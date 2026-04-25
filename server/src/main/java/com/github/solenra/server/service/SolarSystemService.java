@@ -28,4 +28,6 @@ public interface SolarSystemService {
 
     void deleteSolarSystemIntegration(Principal principal, Long id, String code);
 
+    void setSolarSystemIntegrationStatus(Principal principal, Long solarSystemId, String integrationCode, String statusCode);
+
 }

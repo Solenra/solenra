@@ -89,6 +89,7 @@
       <div>
         @if (solarSystem.solarSystemIntegrations && solarSystem.solarSystemIntegrations.length > 0) {
           @for (solarSystemIntegration of solarSystem.solarSystemIntegrations; track solarSystemIntegration) {
+            <!-- TODO if status is 'loading-from-integration-error' then show error message-->
             <div style="max-width: 300px; margin: 0 2px;">
               <mat-card appearance="outlined">
                 <mat-card-header>
@@ -111,7 +112,11 @@
                       </a>
                     }
                   }
-                  <!-- TODO if "Error loading data" status, add error message and retry option-->
+                  @if (solarSystemIntegration.status.code === 'loading-from-integration-error') {
+                    @if (solarSystemIntegration.integration.code === 'solaredge_v2') {
+                      <button type="button" mat-raised-button (click)="onClickRetryIntegration(solarSystemIntegration)">Retry</button>
+                    }
+                  }
                   <button type="button" mat-raised-button color="warn" (click)="onClickDeleteIntegration(solarSystemIntegration)">Delete</button>
                 </mat-card-actions>
               </mat-card>

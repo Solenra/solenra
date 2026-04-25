@@ -75,6 +75,10 @@ export class SolarSystemService {
     return this.serverService.postRequest(this.restUrl + '/save', solarSystem);
   }
 
+  setIntegrationStatus(solarSystemId: any, integrationCode: string, newStatusCode: string): Observable<any> {
+    return this.serverService.postRequest(this.restUrl + '/' + solarSystemId + '/integration/' + integrationCode + '/status', { statusCode: newStatusCode });
+  }
+
   saveIntegration(solarSystemId: number, integrationData: any): Observable<any> {
     return this.serverService.postRequest(this.restUrl + '/' + solarSystemId + '/integration', integrationData);
   }

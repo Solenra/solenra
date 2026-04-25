@@ -251,6 +251,17 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
     });
   }
 
+  onClickRetryIntegration(solarSystemIntegration: any): void {
+    this.solarSystemService.setIntegrationStatus(this.solarSystemId!, solarSystemIntegration.integration.code, '').subscribe({
+      next: () => {
+        this.loadSolarSystem(false);
+      },
+      error: (err: any) => {
+        console.error('Error retrying solar system integration:', err);
+      }
+    });
+  }
+
   // TODO
   onClickAddEnergyPlan() {
 

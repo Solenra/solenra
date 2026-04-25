@@ -351,4 +351,20 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         solarSystemIntegrationRepository.deleteById(integrationId);
     }
 
+    @Override
+    public void setSolarSystemIntegrationStatus(Principal principal, Long solarSystemId, String integrationCode, String statusCode) {
+        // TODO check permission
+        // TODO validate status code
+        SolarSystem solarSystem = getSolarSystem(solarSystemId);
+        Integration integration = integrationRepository.findByCode(integrationCode);
+        if (integration == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + integrationCode + "] not found.");
+        }
+        SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findBySolarSystemAndIntegration(solarSystem, integration);
+        if (solarSystemIntegration == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + integrationCode + "] not found for solar system with ID [" + solarSystemId + "].");
+        }
+        transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegration.getId(), statusCode, null);
+    }
+
 }

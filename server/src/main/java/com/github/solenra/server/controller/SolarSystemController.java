@@ -50,6 +50,12 @@ public class SolarSystemController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("{id}/integration/{code}/status")
+    public ResponseEntity<?> setSolarSystemIntegrationStatus(Principal principal, @PathVariable Long solarSystemId, @PathVariable String integrationCode, @RequestBody Map<String, String> statusData) {
+        solarSystemService.setSolarSystemIntegrationStatus(principal, solarSystemId, integrationCode, statusData.get("statusCode"));
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("{id}/integration/{code}")
     public ResponseEntity<?> deleteIntegration(Principal principal, @PathVariable Long id, @PathVariable String code) {
         solarSystemService.deleteSolarSystemIntegration(principal, id, code);
