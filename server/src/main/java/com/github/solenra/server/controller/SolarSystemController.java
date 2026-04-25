@@ -51,8 +51,8 @@ public class SolarSystemController {
     }
 
     @PostMapping("{id}/integration/{code}/status")
-    public ResponseEntity<?> setSolarSystemIntegrationStatus(Principal principal, @PathVariable Long solarSystemId, @PathVariable String integrationCode, @RequestBody Map<String, String> statusData) {
-        solarSystemService.setSolarSystemIntegrationStatus(principal, solarSystemId, integrationCode, statusData.get("statusCode"));
+    public ResponseEntity<?> setSolarSystemIntegrationStatus(Principal principal, @PathVariable Long id, @PathVariable String integrationCode, @RequestBody Map<String, String> statusData) {
+        solarSystemService.setSolarSystemIntegrationStatus(principal, id, integrationCode, statusData.get("statusCode"));
         return ResponseEntity.ok().build();
     }
 
