@@ -331,16 +331,18 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + code + "] not found for solar system with ID [" + id + "].");
         }
 
+        Long integrationId = solarSystemIntegration.getId();
+
         // Delete associated credentials first
-        solarSystemIntegrationAuthCredentialRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
+        solarSystemIntegrationAuthCredentialRepository.deleteAllBySolarSystemIntegrationId(integrationId);
 
         // Delete any integration-specific metadata before removing the integration
-        systemDetailsRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
-        systemEnergyDetailsRevenueRepository.deleteAllBySystemEnergyDetailsSolarSystemIntegrationId(solarSystemIntegration.getId());
-        systemEnergyDetailsRepository.deleteAllBySolarSystemIntegrationId(solarSystemIntegration.getId());
+        systemDetailsRepository.deleteAllBySolarSystemIntegrationId(integrationId);
+        systemEnergyDetailsRevenueRepository.deleteAllBySystemEnergyDetailsSolarSystemIntegrationId(integrationId);
+        systemEnergyDetailsRepository.deleteAllBySolarSystemIntegrationId(integrationId);
 
-        // Delete the integration
-        solarSystemIntegrationRepository.delete(solarSystemIntegration);
+        // Delete the integration by ID to avoid transient reference issues
+        solarSystemIntegrationRepository.deleteById(integrationId);
     }
 
 }
