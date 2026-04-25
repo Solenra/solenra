@@ -45,7 +45,13 @@ public class TransactionHelperServiceImpl implements TransactionHelperService {
             solarSystemIntegration.setNextUpdateTime(nextUpdateTime);
         }
 
-        solarSystemIntegration.setStatus(solarSystemIntegrationStatusRepository.findByCode(statusCode));
+        SolarSystemIntegrationStatus status = solarSystemIntegrationStatusRepository.findByCode(statusCode);
+        if (status == null) {
+            String errorMessage = "SolarSystemIntegrationStatus with code [" + statusCode + "] not found.";
+            throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+        }
+
+        solarSystemIntegration.setStatus(status);
         solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
     }
 

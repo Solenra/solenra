@@ -4,6 +4,6 @@ import java.time.ZonedDateTime;
 
 public interface TransactionHelperService {
 
-    void saveSolarSystemIntegrationStatus(Long id, String codeUpToDate, ZonedDateTime nextUpdateTime);
+    void saveSolarSystemIntegrationStatus(Long id, String statusCode, ZonedDateTime nextUpdateTime);
 
 }
