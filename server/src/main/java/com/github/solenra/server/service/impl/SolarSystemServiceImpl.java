@@ -25,6 +25,8 @@ import com.github.solenra.server.service.SolarSystemService;
 import com.github.solenra.server.service.SolaredgeApiService;
 import com.github.solenra.server.service.TransactionHelperService;
 
+import jakarta.persistence.EntityManager;
+
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.ZonedDateTime;
@@ -40,6 +42,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private final SolaredgeApiService solaredgeApiService;
     private final EnergyPlanService energyPlanService;
     private final TransactionHelperService transactionHelperService;
+    private final EntityManager entityManager;
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository;
     private final SolarSystemRepository solarSystemRepository;
@@ -53,6 +56,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             SolaredgeApiService solaredgeApiService,
             EnergyPlanService energyPlanService,
             TransactionHelperService transactionHelperService,
+            EntityManager entityManager,
             SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository,
             SolarSystemRepository solarSystemRepository,
             IntegrationRepository integrationRepository,
@@ -65,6 +69,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         this.solaredgeApiService = solaredgeApiService;
         this.energyPlanService = energyPlanService;
         this.transactionHelperService = transactionHelperService;
+        this.entityManager = entityManager;
         this.systemEnergyDetailsRevenueRepository = systemEnergyDetailsRevenueRepository;
         this.solarSystemRepository = solarSystemRepository;
         this.integrationRepository = integrationRepository;
@@ -332,6 +337,9 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         }
 
         Long integrationId = solarSystemIntegration.getId();
+
+        // Clear the persistence context to avoid auto-flush of transient references during delete queries
+        entityManager.clear();
 
         // Delete associated credentials first
         solarSystemIntegrationAuthCredentialRepository.deleteAllBySolarSystemIntegrationId(integrationId);
