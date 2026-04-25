@@ -252,7 +252,7 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
   }
 
   onClickRetryIntegration(solarSystemIntegration: any): void {
-    this.solarSystemService.setIntegrationStatus(this.solarSystemId!, solarSystemIntegration.integration.code, '').subscribe({
+    this.solarSystemService.setIntegrationStatus(this.solarSystemId!, solarSystemIntegration.integration.code, 'pending').subscribe({
       next: () => {
         this.loadSolarSystem(false);
       },
