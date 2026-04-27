@@ -114,6 +114,9 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
             aspectRatio: 2,
             circumference: 180,
             rotation: -90,
+            animation: {
+              duration: 0
+            },
             plugins: {
               legend: {
                 display: false

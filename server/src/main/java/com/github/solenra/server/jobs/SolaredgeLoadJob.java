@@ -22,7 +22,7 @@ public class SolaredgeLoadJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        logger.info("Running SolaredgeLoadJob...");
+        logger.trace("Running SolaredgeLoadJob...");
         if (context.getMergedJobDataMap().containsKey("solarSystemIntegrationId")) {
             long solarSystemIntegrationId = context.getMergedJobDataMap().getLong("solarSystemIntegrationId");
             solarSystemService.runDataLoad(solarSystemIntegrationId);

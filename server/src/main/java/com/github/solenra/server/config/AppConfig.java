@@ -34,6 +34,7 @@ public class AppConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setReadTimeout(Duration.ofSeconds(15));
         factory.setConnectionRequestTimeout(Duration.ofSeconds(15));
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create().disableAutomaticRetries();
 
         // use proxy if configured
         String proxyUseSystemProperties = env.getProperty("http.proxy.use-system-properties");
@@ -41,14 +42,11 @@ public class AppConfig {
         String proxyPort = env.getProperty("http.proxy.port");
 
         if ("true".equals(proxyUseSystemProperties)) {
-            CloseableHttpClient httpClient = HttpClientBuilder.create().useSystemProperties().build();
-            factory.setHttpClient(httpClient);
-
+            clientBuilder.useSystemProperties();
         } else if (StringUtils.hasLength(proxyHostname) && StringUtils.hasLength(proxyPort)) {
             int port = Integer.parseInt(proxyPort);
             HttpHost proxyHost = new HttpHost(proxyHostname, port);
-            HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-            clientBuilder.setProxy(proxyHost).disableCookieManagement();
+            clientBuilder.setProxy(proxyHost).disableCookieManagement().disableAutomaticRetries();
 
             String proxyUsername = env.getProperty("http.proxy.username");
             String proxyPassword = env.getProperty("http.proxy.password");
@@ -61,10 +59,10 @@ public class AppConfig {
                 );
                 clientBuilder.setDefaultCredentialsProvider(credsProvider);
             }
-
-            CloseableHttpClient httpClient = clientBuilder.build();
-            factory.setHttpClient(httpClient);
         }
+
+        CloseableHttpClient httpClient = clientBuilder.build();
+        factory.setHttpClient(httpClient);
 
         RestClient.Builder restClientBuilder = RestClient.builder()
                 .requestFactory(factory);

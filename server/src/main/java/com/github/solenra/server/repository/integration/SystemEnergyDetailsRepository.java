@@ -19,6 +19,6 @@ public interface SystemEnergyDetailsRepository extends JpaRepository<SystemEnerg
 
     void deleteAllBySolarSystemIntegrationId(Long solarSystemIntegrationId);
 
-    List<SystemEnergyDetails> findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsNull(Long solarSystemIntegrationId);
+    List<SystemEnergyDetails> findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsEmpty(long solarSystemIntegrationId);
 
 }

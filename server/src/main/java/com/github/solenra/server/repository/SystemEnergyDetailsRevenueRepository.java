@@ -39,4 +39,6 @@ public interface SystemEnergyDetailsRevenueRepository extends JpaRepository<Syst
 
     int deleteAllBySystemEnergyDetailsSolarSystemIntegrationId(Long solarSystemIntegrationId);
 
+    void deleteAllByEnergyPlanRatePeriodEnergyPlanRateEnergyPlan(EnergyPlan energyPlan);
+
 }

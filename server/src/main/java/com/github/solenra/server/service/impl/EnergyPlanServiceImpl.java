@@ -22,6 +22,7 @@ import com.github.solenra.server.model.SolarSystemDto;
 import com.github.solenra.server.model.SolarSystemEnergyPlanDto;
 import com.github.solenra.server.repository.*;
 import com.github.solenra.server.repository.integration.SystemDetailsRepository;
+import com.github.solenra.server.repository.integration.SystemEnergyDetailsRepository;
 import com.github.solenra.server.service.EnergyPlanService;
 import com.github.solenra.server.service.SchedulerService;
 
@@ -35,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+@Transactional
 @Service("energyPlanService")
 public class EnergyPlanServiceImpl implements EnergyPlanService {
 
@@ -47,7 +49,9 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     private final SolarSystemRepository solarSystemRepository;
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SystemDetailsRepository systemDetailsRepository;
+    private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
     private final SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository;
+
 
     public EnergyPlanServiceImpl(
             SchedulerService schedulerService,
@@ -58,6 +62,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
             SolarSystemRepository solarSystemRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SystemDetailsRepository systemDetailsRepository,
+            SystemEnergyDetailsRepository systemEnergyDetailsRepository,
             SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository
     ) {
         this.energyPlanRepository = energyPlanRepository;
@@ -67,6 +72,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         this.solarSystemRepository = solarSystemRepository;
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.systemDetailsRepository = systemDetailsRepository;
+        this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
         this.systemEnergyDetailsRevenueRepository = systemEnergyDetailsRevenueRepository;
     }
 
@@ -153,7 +159,14 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateEnergyPlanRevenueCalculationNewTransaction(long solarSystemIntegrationId) {
-        logger.info("Calculating energy plan revenue for solarSystemIntegrationId: {}", solarSystemIntegrationId);
+        logger.debug("Calculating energy plan revenue for solarSystemIntegrationId: {}", solarSystemIntegrationId);
+
+        // Reprocess missing records that may have been deleted due to energy plan changes
+        List<SystemEnergyDetails> systemEnergyDetailsToRecalculate = systemEnergyDetailsRepository.findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsEmpty(solarSystemIntegrationId);
+        logger.debug("Found [{}] SystemEnergyDetails records to recalculate for solarSystemIntegrationId: [{}]", systemEnergyDetailsToRecalculate.size(), solarSystemIntegrationId);
+        for (SystemEnergyDetails systemEnergyDetails : systemEnergyDetailsToRecalculate) {
+            calculateAndSaveEnergyRevenue(systemEnergyDetails, Duration.between(systemEnergyDetails.getStartDate(), systemEnergyDetails.getEndDate()).toMinutes());
+        }
 
         SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findById(solarSystemIntegrationId).orElseThrow(() -> {
             String errorMessage = "SolarSystemIntegration with ID [" + solarSystemIntegrationId + "] not found.";
@@ -353,6 +366,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     @Override
     public EnergyPlanDto saveEnergyPlan(EnergyPlanDto energyPlanDto) {
         // TODO permission check
+        // TODO data validation
         EnergyPlan energyPlan = null;
 
         String name = energyPlanDto.getName();
@@ -363,6 +377,15 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         }
 
         if (energyPlan != null) {
+            // clear system energy details revenue for any linked solar system energy plans as rates may have changed
+            systemEnergyDetailsRevenueRepository.deleteAllByEnergyPlanRatePeriodEnergyPlanRateEnergyPlan(energyPlan);
+            /*List<SystemEnergyDetailsRevenue> systemEnergyDetailsRevenueList = systemEnergyDetailsRevenueRepository.findAllByEnergyPlanRatePeriodEnergyPlanRateEnergyPlan(energyPlan);
+            for (SystemEnergyDetailsRevenue systemEnergyDetailsRevenue : systemEnergyDetailsRevenueList) {
+                systemEnergyDetailsRevenue.setEnergyPlanRatePeriod(null);
+                systemEnergyDetailsRevenue.setCalculationStatus(SystemEnergyDetailsRevenue.CALCULATION_STATUS_PENDING);
+                systemEnergyDetailsRevenue = systemEnergyDetailsRevenueRepository.save(systemEnergyDetailsRevenue);
+            }*/
+
             // Clear existing child collections, to be reloaded
             if (energyPlan.getEnergyPlanRates() != null) {
                 energyPlan.getEnergyPlanRates().clear();

@@ -249,7 +249,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
 
                 }
 
-            } else {
+            } else if (!SolarSystemIntegrationStatus.CODE_DISABLED.equals(solarSystemIntegration.getStatus().getCode())) {
                 transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_DISABLED, null);
             }
 
@@ -374,7 +374,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, "Integration with code [" + integrationCode + "] not found for solar system with ID [" + solarSystemId + "].");
         }
 
-        transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegration.getId(), statusCode, ZonedDateTime.now().minusHours(1));
+        transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegration.getId(), statusCode, null);
     }
 
 }

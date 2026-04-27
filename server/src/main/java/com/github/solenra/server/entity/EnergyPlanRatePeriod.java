@@ -16,7 +16,7 @@ public class EnergyPlanRatePeriod {
     @Version
     private Long version;
 
-    @OneToMany(mappedBy = "energyPlanRatePeriod", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "energyPlanRatePeriod", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EnergyPlanRatePeriodDay> daysOfWeek;
 
     @Column(name = "START_TIME")

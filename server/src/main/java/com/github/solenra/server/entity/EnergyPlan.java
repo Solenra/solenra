@@ -31,7 +31,7 @@ public class EnergyPlan {
     @Column(name = "EXPORT_RATE_VALUE", scale = 15, precision = 30)
     private BigDecimal exportRateValue;
 
-    @OneToMany(mappedBy = "energyPlan", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "energyPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EnergyPlanRate> energyPlanRates;
 
     @ManyToOne

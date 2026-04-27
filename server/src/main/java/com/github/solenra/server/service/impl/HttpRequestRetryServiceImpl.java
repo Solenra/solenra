@@ -54,7 +54,7 @@ public class HttpRequestRetryServiceImpl implements HttpRequestRetryService {
 		} catch (RestClientResponseException e) {
 			if (HttpStatus.TOO_MANY_REQUESTS.value() == e.getStatusCode().value()) {
 				// error if rate limit exceeded
-				String errorMessage = "HTTP request rate limit exceeded, backing off.";
+				String errorMessage = "HTTP request rate limit exceeded, backing off. httpMethod=" + httpMethod + ", requestUrl=" + requestUrl + ", requestUri=" + requestUri + ", headers=" + e.getResponseHeaders() + ", body=" + e.getResponseBodyAsString();
 				logger.warn(errorMessage);
 				throw new RateLimitExceededException(errorMessage, e);
 			}

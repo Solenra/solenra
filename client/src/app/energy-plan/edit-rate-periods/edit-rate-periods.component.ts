@@ -117,7 +117,7 @@ export class EditRatePeriodsComponent implements OnInit {
     const dialogRef = this.dialog.open(EditFieldsDialogComponent, {
       width: '420px',
       data: {
-        title: `Edit Rate Periods for ${rate.rateName}`,
+        title: `Add Rate Period for ${rate.rateName}`,
         formData: { daysOfWeek: [], startTime: '', endTime: '' },
         formFields: [
           { controlName: 'daysOfWeek', label: 'Days of week', type: 'select', options: dayOfWeekOptions, multi: true, required: true },

@@ -44,6 +44,8 @@ public class IntegrationLoadJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+        logger.debug("Running IntegrationLoadJob...");
+
         // find halted processes and change status back to queued
         List<SolarSystemIntegration> solarSystemIntegrationsProcessingHalted = solarSystemIntegrationRepository.findAllByStatusCodeInAndEnabledAndIntegrationEnabledAndProcessingHeartbeatAtLessThan(
                 Arrays.asList(SolarSystemIntegrationStatus.CODE_LOADING_FROM_INTEGRATION_QUEUED),
@@ -52,6 +54,7 @@ public class IntegrationLoadJob extends QuartzJobBean {
                 ZonedDateTime.now().minusHours(12) // TODO get from properties
         );
         for (SolarSystemIntegration solarSystemIntegrationProcessingHalted : solarSystemIntegrationsProcessingHalted) {
+            logger.debug("Resetting status for SolarSystemIntegration with ID: [{}]", solarSystemIntegrationProcessingHalted.getId());
             transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationProcessingHalted.getId(), SolarSystemIntegrationStatus.CODE_PENDING, null);
         }
 
@@ -84,9 +87,7 @@ public class IntegrationLoadJob extends QuartzJobBean {
                 //ZonedDateTime.now().plusYears(1)
         );
 
-        if (!solarSystemIntegrations.isEmpty()) {
-            logger.info("Queue processing for [" + solarSystemIntegrations.size() + "] solar system integrations.");
-        }
+        logger.debug("Queuing processing for [{}] solar system integrations.", solarSystemIntegrations.size());
 
         for (SolarSystemIntegration solarSystemIntegration : solarSystemIntegrations) {
             JobDataMap jobDataMap = new JobDataMap();

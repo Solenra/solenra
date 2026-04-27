@@ -206,7 +206,7 @@ export class ListEnergyPlansComponent implements OnInit {
 
       if (!rateName) { continue; }
 
-      let rate = plan.energyPlanRates.find((x: any) => String(x.rateName) === String(rateName) && (x.id || '') === (rateId || ''));
+      let rate = plan.energyPlanRates.find((x: any) => String(x.rateName) === String(rateName));
       if (!rate) {
         rate = {
           id: rateId ? Number(rateId) : undefined,
@@ -216,6 +216,18 @@ export class ListEnergyPlansComponent implements OnInit {
           energyPlanRatePeriods: []
         };
         plan.energyPlanRates.push(rate);
+      } else {
+        // Update existing rate with id if present
+        if (rateId && !rate.id) {
+          rate.id = Number(rateId);
+        }
+        // Update values if provided
+        if (rateValue !== undefined && rateValue !== null) {
+          rate.rateValue = Number(rateValue);
+        }
+        if (comparativeRateValue !== undefined && comparativeRateValue !== null) {
+          rate.comparativeRateValue = Number(comparativeRateValue);
+        }
       }
 
       if (startTime || endTime || daysOfWeek) {
@@ -226,7 +238,15 @@ export class ListEnergyPlansComponent implements OnInit {
           startTime: startTime ? this.normalizeTimeString(startTime) : null,
           endTime: endTime ? this.normalizeTimeString(endTime) : null
         };
-        rate.energyPlanRatePeriods.push(period);
+        // Check for existing period to avoid duplicates
+        const existingPeriod = rate.energyPlanRatePeriods.find((p: any) =>
+          p.startTime === period.startTime &&
+          p.endTime === period.endTime &&
+          JSON.stringify(p.daysOfWeek.map((d: any) => d.dayOfWeek).sort()) === JSON.stringify(days.map((d: any) => d.dayOfWeek).sort())
+        );
+        if (!existingPeriod) {
+          rate.energyPlanRatePeriods.push(period);
+        }
       }
     }
     return Array.from(plansMap.values());

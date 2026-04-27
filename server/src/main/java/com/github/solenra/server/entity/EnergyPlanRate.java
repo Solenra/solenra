@@ -25,7 +25,7 @@ public class EnergyPlanRate {
     @Column(name = "COMPARATIVE_RATE_VALUE", scale = 15, precision = 30)
     private BigDecimal comparativeRateValue;
 
-    @OneToMany(mappedBy = "energyPlanRate", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "energyPlanRate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EnergyPlanRatePeriod> energyPlanRatePeriods;
 
     @ManyToOne
