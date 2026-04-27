@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -239,6 +238,7 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
             if (accessToken == null) {
                 // TODO error / reset integration
                 // TODO set status to expired
+                logger.debug("Aborting request, access token is null for solarSystemIntegrationId [{}]", solarSystemIntegrationId);
                 return null;
             }
 
@@ -247,6 +247,7 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
             } catch (HttpClientErrorException e) {
                 // 401 Unauthorized: "{"error_description":"The access token is invalid or has expired","error":"invalid_token"}"
                 if (HttpStatus.UNAUTHORIZED.value() == e.getStatusCode().value()) {
+                    String errorMessage = "HTTP request error, httpMethod=" + httpMethod + ", requestUrl: " + requestUrl + ", requestUrl: " + requestUrl + ", requestUri=" + requestUri + ", body=" + e.getResponseBodyAsString();
                     RefreshToken refreshTokenError = e.getResponseBodyAs(RefreshToken.class);
                     if ("invalid_token".equals(refreshTokenError.getError())) {
                         // refresh token
@@ -256,9 +257,10 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
                         try {
                             data = httpRequestService.doHttpRequest(httpMethod, requestUrl, requestUri, responseBodyType, accessToken);
                         } catch (Exception e2) {
-                            String errorMessage = "HTTP request error, httpMethod=" + httpMethod + ", requestUrl: " + requestUrl + ", requestUri=" + requestUri + ", body=" + e.getResponseBodyAsString();
                             throw new HttpRequestException(errorMessage, e);
                         }
+                    } else {
+                        logger.debug("Unexpected response. " + errorMessage, e);
                     }
                 } else {
                     throw e;

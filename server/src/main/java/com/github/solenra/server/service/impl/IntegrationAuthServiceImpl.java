@@ -1,5 +1,7 @@
 package com.github.solenra.server.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ import java.util.Objects;
 
 @Service("integrationAuthService")
 public class IntegrationAuthServiceImpl implements IntegrationAuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(IntegrationAuthServiceImpl.class);
 
     private final IntegrationAuthCredentialRepository integrationAuthCredentialRepository;
     private final SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository;
@@ -95,7 +99,15 @@ public class IntegrationAuthServiceImpl implements IntegrationAuthService {
 
     @Override
     public String getAccessToken(long solarSystemIntegrationId, boolean forceRefresh) {
+        logger.debug("Retrieving access token for solar system integration [{}], forcing refresh: {}", solarSystemIntegrationId, forceRefresh);
+
         String accessToken = getCredential(solarSystemIntegrationId, SolarSystemIntegrationAuthCredential.TYPE_ACCESS_TOKEN);
+
+        if (accessToken == null) {
+            logger.debug("No access token found for solar system integration [{}], fetching new token...", solarSystemIntegrationId);
+        } else if (accessToken != null && forceRefresh) {
+            logger.debug("Access token was found, but forcing refresh of access token for solar system integration [{}]", solarSystemIntegrationId);
+        }
 
         if (accessToken == null || forceRefresh) {
             String refreshToken = getCredential(solarSystemIntegrationId, SolarSystemIntegrationAuthCredential.TYPE_REFRESH_TOKEN);
@@ -106,6 +118,8 @@ public class IntegrationAuthServiceImpl implements IntegrationAuthService {
             BearerToken bearerTokenResult = null;
 
             boolean skipRefreshToken = refreshToken == null;
+
+            logger.debug(skipRefreshToken ? "No refresh token found, will attempt to get new access token using auth code for solar system integration [{}]" : "Refresh token found, will attempt to get new access token using refresh token for solar system integration [{}]", solarSystemIntegrationId);
 
             if (!skipRefreshToken) {
                 // get new access token using refresh token
