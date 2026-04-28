@@ -63,6 +63,10 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe(params => {
       this.solarSystemId = params['id'];
+      if (this.reloadSubscription) {
+        this.reloadSubscription.unsubscribe();
+        this.reloadSubscription = undefined;
+      }
       this.loadSolarSystem(true);
     });
   }
@@ -80,7 +84,6 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
     if (setLoadingFlag) {
       this.loadingSolarSystem = true;
     }
-    this.loadingSolarSystem = true;
     this.solarSystemService.searchSolarSystems(this.solarSystemId).subscribe({
       next: (solarSystemPage: ApiPage<SolarSystem>) => {
         if (solarSystemPage && solarSystemPage.content) {

@@ -257,6 +257,7 @@ public class SolaredgeApiServiceImpl implements SolaredgeApiService {
                         try {
                             data = httpRequestService.doHttpRequest(httpMethod, requestUrl, requestUri, responseBodyType, accessToken);
                         } catch (Exception e2) {
+                            logger.error("HTTP request error after token refresh attempt for solarSystemIntegrationId [" + solarSystemIntegrationId + "]. ", e2);
                             throw new HttpRequestException(errorMessage, e);
                         }
                     } else {
