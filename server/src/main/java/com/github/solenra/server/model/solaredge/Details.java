@@ -92,7 +92,7 @@ public class Details {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PublicSettings {
         public String name;
-        public boolean isPublic;
+        public Boolean isPublic;
 
         @Override
         public String toString() {
