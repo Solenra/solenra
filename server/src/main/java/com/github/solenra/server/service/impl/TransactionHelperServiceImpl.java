@@ -8,12 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.solenra.server.entity.SolarSystemIntegration;
 import com.github.solenra.server.entity.SolarSystemIntegrationAuthCredential;
 import com.github.solenra.server.entity.SolarSystemIntegrationStatus;
+import com.github.solenra.server.entity.integration.SystemEnergyDetails;
 import com.github.solenra.server.exceptions.ApplicationException;
 import com.github.solenra.server.repository.SolarSystemIntegrationAuthCredentialRepository;
 import com.github.solenra.server.repository.SolarSystemIntegrationRepository;
 import com.github.solenra.server.repository.SolarSystemIntegrationStatusRepository;
 import com.github.solenra.server.repository.integration.SystemEnergyDetailsRepository;
-import com.github.solenra.server.service.EnergyPlanService;
+import com.github.solenra.server.service.CalculationService;
 import com.github.solenra.server.service.TransactionHelperService;
 
 import java.time.ZonedDateTime;
@@ -24,15 +25,21 @@ public class TransactionHelperServiceImpl implements TransactionHelperService {
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository;
     private final SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository;
+    private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
+    private final CalculationService calculationService;
 
     public TransactionHelperServiceImpl(
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository,
-            SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository
+            SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository,
+            SystemEnergyDetailsRepository systemEnergyDetailsRepository,
+            CalculationService calculationService
     ) {
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.solarSystemIntegrationStatusRepository = solarSystemIntegrationStatusRepository;
         this.solarSystemIntegrationAuthCredentialRepository = solarSystemIntegrationAuthCredentialRepository;
+        this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
+        this.calculationService = calculationService;
     }
 
     private SolarSystemIntegration getSolarSystemIntegration(Long id) {
@@ -101,6 +108,16 @@ public class TransactionHelperServiceImpl implements TransactionHelperService {
             solarSystemIntegration.setEnabled(true);
             solarSystemIntegration = solarSystemIntegrationRepository.save(solarSystemIntegration);
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void calculateAndSaveEnergyRevenue(Long systemEnergyDetailsId, long energyDetailsHourDuration) {
+        SystemEnergyDetails systemEnergyDetails = systemEnergyDetailsRepository.findById(systemEnergyDetailsId).orElseThrow(() -> {
+            String errorMessage = "SystemEnergyDetails with ID [" + systemEnergyDetailsId + "] not found.";
+            return new ApplicationException(HttpStatus.BAD_REQUEST, errorMessage);
+        });
+        calculationService.calculateAndSaveEnergyRevenue(systemEnergyDetails, energyDetailsHourDuration);
     }
 
 }
