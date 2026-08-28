@@ -63,8 +63,12 @@ export class LoginComponent implements OnInit {
 
           let errorMessage = 'Please check your credentials and try again.';
 
-          if (error.status !== 403 && error.error) {
-            errorMessage = error.error.error + ': ' + error.error.message;
+          if (error.status !== 401 && error.status !== 403) {
+            if (error.error && error.error.error && error.error.message) {
+              errorMessage = error.error.error + ': ' + error.error.message;
+            } else {
+              errorMessage = error.name + ': ' + error.status + ' - ' + error.statusText;
+            }
           }
 
           const confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {

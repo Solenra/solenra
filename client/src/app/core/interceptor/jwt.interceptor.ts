@@ -18,11 +18,12 @@ export const jwtInterceptor: HttpInterceptorFn = (
   const http = inject(HttpClient);
 
   const isLoginRequest = req.url.includes('/api/identity/login');
-  const isTokenRefreshRequest = req.url.includes('/server/api/identity/token/refresh');
+  const isTokenRefreshRequest = req.url.includes('/api/identity/token/refresh');
+  //const isIdentityRequest = req.url.includes('/api/identity/');
   const accessToken = localStorage.getItem('accessToken');
 
   // If token exists and it's not a login request
-  if (accessToken && !isLoginRequest && !isTokenRefreshRequest) {
+  if (accessToken && !isLoginRequest) { // && !isIdentityRequest
     if (isTokenExpired(accessToken)) {
       return handle401Refresh(req, next, http);
     } else {
@@ -32,7 +33,7 @@ export const jwtInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
-      if (err.status === 401 && !req.url.includes('/server/api/identity/token/refresh')) {
+      if (err.status === 401 && !isTokenRefreshRequest && !isLoginRequest) {
         return handle401Refresh(req, next, http);
       }
       return throwError(() => err);

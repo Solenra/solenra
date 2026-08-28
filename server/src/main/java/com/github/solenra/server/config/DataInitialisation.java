@@ -120,8 +120,12 @@ public class DataInitialisation {
                     break;
             }
 
-            EnergyPlanStatus energyPlanStatus = new EnergyPlanStatus();
-            energyPlanStatus.setCode(statusCode);
+            EnergyPlanStatus energyPlanStatus = energyPlanStatusRepository.findByCode(statusCode);
+            if (energyPlanStatus == null) {
+                energyPlanStatus = new EnergyPlanStatus();
+                energyPlanStatus.setCode(statusCode);
+            }
+
             energyPlanStatus.setName(name);
             energyPlanStatus.setDisplayOrder(displayOrder);
             energyPlanStatus = energyPlanStatusRepository.save(energyPlanStatus);

@@ -7,7 +7,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,7 +64,7 @@ public class SolarSystemController {
     @RequestMapping("/search")
     public Page<SolarSystemDto> search(
             Principal principal,
-            @RequestParam(required = false) Long solarSystemId,
+            @RequestParam(required = false) Long id,
             @RequestParam(defaultValue = "0") Integer pageIndex,
             @RequestParam(defaultValue = "25") Integer pageSize,
             @RequestParam(required = false) List<String> sort)
@@ -79,7 +78,7 @@ public class SolarSystemController {
         List<Sort.Order> orders = RestUtils.getSortOrder(sort);
         Pageable pageable = PageRequest.of(pageIndex, pageSize, orders.isEmpty() ? Sort.unsorted() : Sort.by(orders));
 
-        return solarSystemService.searchSolarSystems(principal, solarSystemId, pageable);
+        return solarSystemService.searchSolarSystems(principal, id, pageable);
     }
 
     @RequestMapping("/search-energy-details")

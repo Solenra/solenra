@@ -213,6 +213,8 @@ public class SolarSystemServiceImpl implements SolarSystemService {
                     }
 
 
+                    // TODO use new status and new quartz scheduler
+                    // new statuses: Pending Calculationl, Calculating, Calculation Error
                     energyPlanService.updateEnergyPlanRevenueCalculationNewTransaction(solarSystemIntegrationId);
 
                     transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_UP_TO_DATE, nextUpdateTime);

@@ -1,17 +1,12 @@
 <div>
-    <mat-toolbar color="primary">
-        <span>Solenra</span>
-        <span class="spacer"></span>
-    </mat-toolbar>
-
     <section class="intro">
         <h1>Welcome to Solenra</h1>
         <p>Track your solar investment returns — ROI, payback period, and savings from self-consumption and export tariffs.</p>
         <button mat-raised-button color="accent" *ngIf="!isLoggedIn()" routerLink="/login">
-            Register/Login to get started
+            Login to get started
         </button>
         <button mat-raised-button color="accent" *ngIf="isLoggedIn()" routerLink="/solar-systems">
-            Add/view your solar system details
+            View your solar system details
         </button>
     </section>
 
@@ -31,6 +26,6 @@
     </section>
 
     <footer>
-        <p>© {{ currentYear }} Solenra. <a href="https://solenra.org/" target="_blank">solenra.org</a> | <a href="https://github.com/Solenra/Solenra" target="_blank">GitHub</a></p>
+        <p><a href="https://solenra.org/" target="_blank">solenra.org</a> | <a href="https://github.com/Solenra/Solenra" target="_blank">GitHub</a></p>
     </footer>
 </div>
