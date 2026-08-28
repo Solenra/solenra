@@ -13,7 +13,7 @@ import com.github.solenra.server.model.SystemDetailsDto;
 import com.github.solenra.server.repository.SolarSystemIntegrationRepository;
 import com.github.solenra.server.repository.integration.SystemDetailsRepository;
 import com.github.solenra.server.repository.integration.SystemEnergyDetailsRepository;
-import com.github.solenra.server.service.EnergyPlanService;
+import com.github.solenra.server.service.CalculationService;
 import com.github.solenra.server.service.SystemEnergyDetailsService;
 
 import java.time.ZonedDateTime;
@@ -24,18 +24,18 @@ public class SystemEnergyDetailsServiceImpl implements SystemEnergyDetailsServic
     private final SystemDetailsRepository systemDetailsRepository;
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
-    private final EnergyPlanService energyPlanService;
+    private final CalculationService calculationService;
 
     public SystemEnergyDetailsServiceImpl(
             SystemDetailsRepository systemDetailsRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SystemEnergyDetailsRepository systemEnergyDetailsRepository,
-            EnergyPlanService energyPlanService
+            CalculationService calculationService
     ) {
         this.systemDetailsRepository = systemDetailsRepository;
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
-        this.energyPlanService = energyPlanService;
+        this.calculationService = calculationService;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SystemEnergyDetailsServiceImpl implements SystemEnergyDetailsServic
         systemEnergyDetails.setStartDate(startDate);
         systemEnergyDetails.setEndDate(startDate.plusMinutes(energyDetailsMinutesDuration));
         systemEnergyDetails = systemEnergyDetailsRepository.save(systemEnergyDetails);
-        energyPlanService.calculateAndSaveEnergyRevenue(systemEnergyDetails, energyDetailsMinutesDuration);
+        calculationService.calculateAndSaveEnergyRevenue(systemEnergyDetails, energyDetailsMinutesDuration);
 
         //systemEnergyDetails.setProcessStatus(SystemEnergyDetails.PROCESS_STATUS_PROCESSED);
         //systemEnergyDetails = systemEnergyDetailsRepository.save(systemEnergyDetails);
