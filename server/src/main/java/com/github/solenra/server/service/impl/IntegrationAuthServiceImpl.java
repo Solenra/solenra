@@ -99,7 +99,7 @@ public class IntegrationAuthServiceImpl implements IntegrationAuthService {
 
     @Override
     public String getAccessToken(long solarSystemIntegrationId, boolean forceRefresh) {
-        logger.debug("Retrieving access token for solar system integration [{}], forcing refresh: {}", solarSystemIntegrationId, forceRefresh);
+        logger.trace("Retrieving access token for solar system integration [{}], forcing refresh: {}", solarSystemIntegrationId, forceRefresh);
 
         String accessToken = getCredential(solarSystemIntegrationId, SolarSystemIntegrationAuthCredential.TYPE_ACCESS_TOKEN);
 

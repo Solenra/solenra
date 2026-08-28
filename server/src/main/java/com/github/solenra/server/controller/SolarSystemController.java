@@ -64,7 +64,7 @@ public class SolarSystemController {
     @RequestMapping("/search")
     public Page<SolarSystemDto> search(
             Principal principal,
-            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) Long solarSystemId,
             @RequestParam(defaultValue = "0") Integer pageIndex,
             @RequestParam(defaultValue = "25") Integer pageSize,
             @RequestParam(required = false) List<String> sort)
@@ -78,7 +78,7 @@ public class SolarSystemController {
         List<Sort.Order> orders = RestUtils.getSortOrder(sort);
         Pageable pageable = PageRequest.of(pageIndex, pageSize, orders.isEmpty() ? Sort.unsorted() : Sort.by(orders));
 
-        return solarSystemService.searchSolarSystems(principal, id, pageable);
+        return solarSystemService.searchSolarSystems(principal, solarSystemId, pageable);
     }
 
     @RequestMapping("/search-energy-details")
