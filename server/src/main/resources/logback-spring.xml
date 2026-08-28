@@ -11,21 +11,24 @@
     </appender>
 
     <!-- LOG everything at INFO level -->
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="Console" />
     </root>
 
     <!-- LOG "com.github.solenra*" at DEBUG level -->
-    <logger name="com.github.solenra" level="debug" additivity="false">
+    <logger name="com.github.solenra" level="DEBUG" additivity="false">
         <appender-ref ref="Console" />
     </logger>
 
+    <!-- LOG "org.springframework.retry*" at INFO level -->
+    <logger name="org.springframework.retry" level="INFO" />
+
     <springProfile name="local">
         <!-- LOG to console when running in local environment -->
-        <root level="info">
+        <root level="INFO">
             <appender-ref ref="Console" />
         </root>
-        <logger name="com.github.solenra" level="debug">
+        <logger name="com.github.solenra" level="DEBUG">
             <appender-ref ref="Console" />
         </logger>
     </springProfile>
