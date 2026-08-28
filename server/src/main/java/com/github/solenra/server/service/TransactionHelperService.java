@@ -10,4 +10,6 @@ public interface TransactionHelperService {
 
     void saveIntegrationAuthCredential(Long solarSystemIntegrationId, String type, String value);
 
+    void calculateAndSaveEnergyRevenue(Long systemEnergyDetailsId, long energyDetailsHourDuration);
+
 }

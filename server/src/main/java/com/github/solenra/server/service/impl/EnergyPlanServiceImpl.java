@@ -25,6 +25,7 @@ import com.github.solenra.server.repository.integration.SystemDetailsRepository;
 import com.github.solenra.server.repository.integration.SystemEnergyDetailsRepository;
 import com.github.solenra.server.service.EnergyPlanService;
 import com.github.solenra.server.service.SchedulerService;
+import com.github.solenra.server.service.TransactionHelperService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -52,6 +53,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
     private final SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository;
 
+    private final TransactionHelperService transactionHelperService;
 
     public EnergyPlanServiceImpl(
             SchedulerService schedulerService,
@@ -63,7 +65,8 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SystemDetailsRepository systemDetailsRepository,
             SystemEnergyDetailsRepository systemEnergyDetailsRepository,
-            SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository
+            SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository,
+            TransactionHelperService transactionHelperService
     ) {
         this.energyPlanRepository = energyPlanRepository;
         this.energyPlanRatePeriodRepository = energyPlanRatePeriodRepository;
@@ -74,6 +77,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         this.systemDetailsRepository = systemDetailsRepository;
         this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
         this.systemEnergyDetailsRevenueRepository = systemEnergyDetailsRevenueRepository;
+        this.transactionHelperService = transactionHelperService;
     }
 
     @Override
@@ -165,7 +169,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         List<SystemEnergyDetails> systemEnergyDetailsToRecalculate = systemEnergyDetailsRepository.findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsEmpty(solarSystemIntegrationId);
         logger.debug("Found [{}] SystemEnergyDetails records to recalculate for solarSystemIntegrationId: [{}]", systemEnergyDetailsToRecalculate.size(), solarSystemIntegrationId);
         for (SystemEnergyDetails systemEnergyDetails : systemEnergyDetailsToRecalculate) {
-            calculateAndSaveEnergyRevenue(systemEnergyDetails, Duration.between(systemEnergyDetails.getStartDate(), systemEnergyDetails.getEndDate()).toMinutes());
+            transactionHelperService.calculateAndSaveEnergyRevenue(systemEnergyDetails.getId(), Duration.between(systemEnergyDetails.getStartDate(), systemEnergyDetails.getEndDate()).toMinutes());
         }
 
         SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findById(solarSystemIntegrationId).orElseThrow(() -> {
