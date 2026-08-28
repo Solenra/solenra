@@ -5,12 +5,9 @@ import java.security.Principal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.github.solenra.server.entity.integration.SystemEnergyDetails;
 import com.github.solenra.server.model.EnergyPlanDto;
 
 public interface EnergyPlanService {
-
-    void calculateAndSaveEnergyRevenue(SystemEnergyDetails systemEnergyDetails, long energyDetailsHourDuration);
 
     void updateEnergyPlanRevenueCalculationNewTransaction(long solarSystemIntegration);
 

@@ -44,7 +44,6 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     private static final Logger logger = LoggerFactory.getLogger(EnergyPlanServiceImpl.class);
 
     private final EnergyPlanRepository energyPlanRepository;
-    private final EnergyPlanRatePeriodRepository energyPlanRatePeriodRepository;
     private final EnergyPlanStatusRepository energyPlanStatusRepository;
     private final SolarSystemEnergyPlanRepository solarSystemEnergyPlanRepository;
     private final SolarSystemRepository solarSystemRepository;
@@ -58,7 +57,6 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     public EnergyPlanServiceImpl(
             SchedulerService schedulerService,
             EnergyPlanRepository energyPlanRepository,
-            EnergyPlanRatePeriodRepository energyPlanRatePeriodRepository,
             EnergyPlanStatusRepository energyPlanStatusRepository,
             SolarSystemEnergyPlanRepository solarSystemEnergyPlanRepository,
             SolarSystemRepository solarSystemRepository,
@@ -69,7 +67,6 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
             TransactionHelperService transactionHelperService
     ) {
         this.energyPlanRepository = energyPlanRepository;
-        this.energyPlanRatePeriodRepository = energyPlanRatePeriodRepository;
         this.energyPlanStatusRepository = energyPlanStatusRepository;
         this.solarSystemEnergyPlanRepository = solarSystemEnergyPlanRepository;
         this.solarSystemRepository = solarSystemRepository;
