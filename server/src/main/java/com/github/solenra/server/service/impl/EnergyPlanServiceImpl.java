@@ -173,7 +173,6 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
                         );
                 solarSystem.setRoiToDate(roiToDate);
                 solarSystem.setRoiAnnualised(roiAnnualised);
-                solarSystem = solarSystemRepository.save(solarSystem);
             }
 
             if (outlayCost != null && outlayCost.compareTo(BigDecimal.ZERO) != 0
@@ -193,6 +192,9 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
             }
         }
 
+        solarSystem = solarSystemRepository.save(solarSystem);
+
+        recalculateSolarSystemRevenue(solarSystem.getId());
 
         //recalculateSolarSystem = true;
 
