@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.solenra.server.entity.*;
 import com.github.solenra.server.entity.integration.SystemDetails;
-import com.github.solenra.server.entity.integration.SystemEnergyDetails;
 import com.github.solenra.server.exceptions.ApplicationException;
 import com.github.solenra.server.model.EnergyPlanDto;
 import com.github.solenra.server.model.EnergyPlanRateDto;
@@ -22,10 +21,8 @@ import com.github.solenra.server.model.SolarSystemDto;
 import com.github.solenra.server.model.SolarSystemEnergyPlanDto;
 import com.github.solenra.server.repository.*;
 import com.github.solenra.server.repository.integration.SystemDetailsRepository;
-import com.github.solenra.server.repository.integration.SystemEnergyDetailsRepository;
 import com.github.solenra.server.service.EnergyPlanService;
 import com.github.solenra.server.service.SchedulerService;
-import com.github.solenra.server.service.TransactionHelperService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -49,10 +46,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     private final SolarSystemRepository solarSystemRepository;
     private final SolarSystemIntegrationRepository solarSystemIntegrationRepository;
     private final SystemDetailsRepository systemDetailsRepository;
-    private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
     private final SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository;
-
-    private final TransactionHelperService transactionHelperService;
 
     public EnergyPlanServiceImpl(
             SchedulerService schedulerService,
@@ -62,9 +56,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
             SolarSystemRepository solarSystemRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SystemDetailsRepository systemDetailsRepository,
-            SystemEnergyDetailsRepository systemEnergyDetailsRepository,
-            SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository,
-            TransactionHelperService transactionHelperService
+            SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository
     ) {
         this.energyPlanRepository = energyPlanRepository;
         this.energyPlanStatusRepository = energyPlanStatusRepository;
@@ -72,30 +64,12 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         this.solarSystemRepository = solarSystemRepository;
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.systemDetailsRepository = systemDetailsRepository;
-        this.systemEnergyDetailsRepository = systemEnergyDetailsRepository;
         this.systemEnergyDetailsRevenueRepository = systemEnergyDetailsRevenueRepository;
-        this.transactionHelperService = transactionHelperService;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateEnergyPlanRevenueCalculationNewTransaction(long solarSystemIntegrationId) {
-        logger.debug("Calculating energy plan revenue for solarSystemIntegrationId: {}", solarSystemIntegrationId);
-
-        // if no energy plans are found, skip the calculation
-        if (!solarSystemEnergyPlanRepository.existsBySolarSystemSolarSystemIntegrationsId(solarSystemIntegrationId)) {
-        logger.debug("Skipping calculation, no energy plan found for solarSystemIntegrationId: {}", solarSystemIntegrationId);
-            return;
-        }
-
-
-        // Reprocess missing records that may have been deleted due to energy plan changes
-        List<SystemEnergyDetails> systemEnergyDetailsToRecalculate = systemEnergyDetailsRepository.findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsEmpty(solarSystemIntegrationId);
-        logger.debug("Found [{}] SystemEnergyDetails records to recalculate for solarSystemIntegrationId: [{}]", systemEnergyDetailsToRecalculate.size(), solarSystemIntegrationId);
-        for (SystemEnergyDetails systemEnergyDetails : systemEnergyDetailsToRecalculate) {
-            transactionHelperService.calculateAndSaveEnergyRevenue(systemEnergyDetails.getId(), Duration.between(systemEnergyDetails.getStartDate(), systemEnergyDetails.getEndDate()).toMinutes());
-        }
-
         SolarSystemIntegration solarSystemIntegration = solarSystemIntegrationRepository.findById(solarSystemIntegrationId).orElseThrow(() -> {
             String errorMessage = "SolarSystemIntegration with ID [" + solarSystemIntegrationId + "] not found.";
             return new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);

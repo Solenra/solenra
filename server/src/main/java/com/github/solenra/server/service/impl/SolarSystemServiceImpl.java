@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +29,7 @@ import com.github.solenra.server.service.TransactionHelperService;
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -281,10 +281,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
 
                     }
 
-
-                    // TODO use new status and new quartz scheduler
-                    // new statuses: Pending Calculationl, Calculating, Calculation Error
-                    energyPlanService.updateEnergyPlanRevenueCalculationNewTransaction(solarSystemIntegrationId);
+                    doRevenueCalculation(solarSystemIntegrationId);
 
                     transactionHelperService.saveSolarSystemIntegrationStatus(solarSystemIntegrationId, SolarSystemIntegrationStatus.CODE_UP_TO_DATE, nextUpdateTime);
 
@@ -327,6 +324,30 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         } catch (Exception e) {
             // TODO re-load object and set status to transient error
         }
+
+    }
+
+    private void doRevenueCalculation(long solarSystemIntegrationId) {
+
+        // TODO use new status and new quartz scheduler
+        // new statuses: Pending Calculationl, Calculating, Calculation Error
+
+        logger.debug("Calculating energy plan revenue for solarSystemIntegrationId: {}", solarSystemIntegrationId);
+
+        // if no energy plans are found, skip the calculation
+        if (!solarSystemEnergyPlanRepository.existsBySolarSystemSolarSystemIntegrationsId(solarSystemIntegrationId)) {
+        logger.debug("Skipping calculation, no energy plan found for solarSystemIntegrationId: {}", solarSystemIntegrationId);
+            return;
+        }
+
+        // Reprocess missing records that may have been deleted due to energy plan changes
+        List<SystemEnergyDetails> systemEnergyDetailsToRecalculate = systemEnergyDetailsRepository.findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsEmpty(solarSystemIntegrationId);
+        logger.debug("Found [{}] SystemEnergyDetails records to recalculate for solarSystemIntegrationId: [{}]", systemEnergyDetailsToRecalculate.size(), solarSystemIntegrationId);
+        for (SystemEnergyDetails systemEnergyDetails : systemEnergyDetailsToRecalculate) {
+            transactionHelperService.calculateAndSaveEnergyRevenue(systemEnergyDetails.getId(), Duration.between(systemEnergyDetails.getStartDate(), systemEnergyDetails.getEndDate()).toMinutes());
+        }
+
+        energyPlanService.updateEnergyPlanRevenueCalculationNewTransaction(solarSystemIntegrationId);
 
     }
 
