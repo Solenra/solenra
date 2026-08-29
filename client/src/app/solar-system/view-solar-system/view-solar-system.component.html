@@ -103,7 +103,7 @@
                 <mat-card-actions>
                   @if (solarSystemIntegration.status.code === 'expired-credentials' || solarSystemIntegration.status.code === 'setup') {
                     @if (solarSystemIntegration.integration.code === 'solaredge_v2') {
-                      <a mat-raised-button [href]="'https://connect.solaredge.com/authorize?client_id=' + integrationClientIds[solarSystemIntegration.integration.code] + '&external_id=' + solarSystemIntegration.id">
+                      <a mat-stroked-button [href]="'https://connect.solaredge.com/authorize?client_id=' + integrationClientIds[solarSystemIntegration.integration.code] + '&external_id=' + solarSystemIntegration.id">
                         @if (solarSystemIntegration.status.code === 'setup') {
                           Connect
                         } @else {
@@ -114,10 +114,10 @@
                   }
                   @if (solarSystemIntegration.status.code === 'loading-from-integration-error') {
                     @if (solarSystemIntegration.integration.code === 'solaredge_v2') {
-                      <button type="button" mat-raised-button (click)="onClickRetryIntegration(solarSystemIntegration)">Retry</button>
+                      <button type="button" mat-stroked-button (click)="onClickRetryIntegration(solarSystemIntegration)">Retry</button>
                     }
                   }
-                  <button type="button" mat-raised-button color="warn" (click)="onClickDeleteIntegration(solarSystemIntegration)">Delete</button>
+                  <button type="button" mat-stroked-button color="warn" (click)="onClickDeleteIntegration(solarSystemIntegration)">Delete</button>
                 </mat-card-actions>
               </mat-card>
             </div>
@@ -129,7 +129,7 @@
                 <mat-card-title>Add integration</mat-card-title>
               </mat-card-header>
               <mat-card-actions>
-                <button type="button" mat-raised-button (click)="onClickConnectIntegration()">Connect to service</button>
+                <button type="button" mat-stroked-button (click)="onClickConnectIntegration()">Connect to service</button>
               </mat-card-actions>
             </mat-card>
           </div>
@@ -148,8 +148,16 @@
 
     <br/>
 
-    <div>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
       <h4>Energy plans</h4>
+      <div>
+        <input #energyPlansFileInput type="file" accept=".csv,text/csv" (change)="onImportEnergyPlansFile($event)" hidden>
+        <button type="button" mat-stroked-button color="primary" (click)="onClickImportEnergyPlans()" class="import-button"><mat-icon>file_upload</mat-icon> Import</button>
+        <button type="button" mat-stroked-button color="primary" (click)="onClickExportEnergyPlans()" class="export-button"><mat-icon>file_download</mat-icon> Export</button>
+        <button type="button" mat-stroked-button color="primary" (click)="onClickAddEnergyPlan()" class="add-button">
+            <mat-icon>add</mat-icon> Add Energy Plan
+        </button>
+      </div>
     </div>
     @for (energyPlan of solarSystem.energyPlans; track energyPlan) {
       <mat-expansion-panel>
@@ -244,9 +252,8 @@
           <br/>
 
           <div class="action-buttons">
-            <button type="button" mat-raised-button (click)="onClickExportEnergyPlans()">Export</button>
-            <button type="button" mat-raised-button (click)="onClickEditEnergyPlan()">Edit</button>
-            <button type="button" mat-raised-button (click)="onClickRemoveEnergyPlan()">Remove</button>
+            <button type="button" mat-stroked-button (click)="onClickEditEnergyPlan(energyPlan)">Edit</button>
+            <button type="button" mat-stroked-button (click)="onClickRemoveEnergyPlan(energyPlan)">Remove</button>
           </div>
 
         </ng-template>

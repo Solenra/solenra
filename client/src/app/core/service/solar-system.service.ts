@@ -75,6 +75,14 @@ export class SolarSystemService {
     return this.serverService.postRequest(this.restUrl + '/save', solarSystem);
   }
 
+  saveEnergyPlan(solarSystemId: number, energyPlan: any): Observable<any> {
+    return this.serverService.postRequest(this.restUrl + '/' + solarSystemId + '/energy-plans', energyPlan);
+  }
+
+  deleteEnergyPlan(solarSystemId: number, energyPlanId: number): Observable<any> {
+    return this.serverService.deleteRequest(this.restUrl + '/' + solarSystemId + '/energy-plans/' + energyPlanId);
+  }
+
   setIntegrationStatus(solarSystemId: any, integrationCode: string, newStatusCode: string): Observable<any> {
     return this.serverService.postRequest(this.restUrl + '/' + solarSystemId + '/integration/' + integrationCode + '/status', { statusCode: newStatusCode });
   }

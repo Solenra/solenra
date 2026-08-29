@@ -99,7 +99,7 @@
 <div mat-dialog-actions align="end">
   <button type="button" mat-stroked-button matDialogClose>Cancel</button>
   @if (editFieldsForm && !data.saveEventEmit) {
-    <button type="button" mat-raised-button [color]="data.saveButtonColor"
+    <button type="button" mat-stroked-button [color]="data.saveButtonColor"
       [disabled]="data.disableFields || editFieldsForm.invalid" [mat-dialog-close]="fieldData">
       {{saveButtonText}}
     </button>

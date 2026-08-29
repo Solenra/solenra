@@ -16,6 +16,7 @@ import com.github.solenra.server.entity.*;
 import com.github.solenra.server.entity.integration.SystemEnergyDetails;
 import com.github.solenra.server.exceptions.ApplicationException;
 import com.github.solenra.server.model.SolarSystemDto;
+import com.github.solenra.server.model.SolarSystemEnergyPlanDto;
 import com.github.solenra.server.model.SystemEnergyDetailsDto;
 import com.github.solenra.server.model.SystemEnergyDetailsRevenueDto;
 import com.github.solenra.server.repository.*;
@@ -50,6 +51,8 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private final SystemEnergyDetailsRepository systemEnergyDetailsRepository;
     private final SystemEnergyDetailsRevenueRepository systemEnergyDetailsRevenueRepository;
     private final SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository;
+    private final SolarSystemEnergyPlanRepository solarSystemEnergyPlanRepository;
+    private final EnergyPlanRepository energyPlanRepository;
 
     public SolarSystemServiceImpl(
             SolaredgeApiService solaredgeApiService,
@@ -62,7 +65,9 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             SystemEnergyDetailsRepository systemEnergyDetailsRepository,
             SolarSystemIntegrationRepository solarSystemIntegrationRepository,
             SolarSystemIntegrationStatusRepository solarSystemIntegrationStatusRepository,
-            SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository
+            SolarSystemIntegrationAuthCredentialRepository solarSystemIntegrationAuthCredentialRepository,
+            SolarSystemEnergyPlanRepository solarSystemEnergyPlanRepository,
+            EnergyPlanRepository energyPlanRepository
     ) {
         this.solaredgeApiService = solaredgeApiService;
         this.energyPlanService = energyPlanService;
@@ -75,6 +80,8 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         this.solarSystemIntegrationRepository = solarSystemIntegrationRepository;
         this.solarSystemIntegrationStatusRepository = solarSystemIntegrationStatusRepository;
         this.solarSystemIntegrationAuthCredentialRepository = solarSystemIntegrationAuthCredentialRepository;
+        this.solarSystemEnergyPlanRepository = solarSystemEnergyPlanRepository;
+        this.energyPlanRepository = energyPlanRepository;
     }
 
     private SolarSystem getSolarSystem(Long id) {
@@ -128,6 +135,68 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         }
 
         return new SolarSystemDto(solarSystem);
+    }
+
+    @Override
+    public void saveSolarSystemEnergyPlan(Principal principal, Long solarSystemId, SolarSystemEnergyPlanDto solarSystemEnergyPlanDto) {
+        SolarSystem solarSystem = getSolarSystem(solarSystemId);
+
+        if (solarSystemEnergyPlanDto == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Solar system energy plan is required.");
+        }
+        if (solarSystemEnergyPlanDto.getStartDate() == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Start date is required.");
+        }
+        if (solarSystemEnergyPlanDto.getEndDate() != null
+                && solarSystemEnergyPlanDto.getEndDate().isBefore(solarSystemEnergyPlanDto.getStartDate())) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "End date must be after the start date.");
+        }
+
+        if (solarSystemEnergyPlanDto.getId() != null) {
+            SolarSystemEnergyPlan solarSystemEnergyPlan = solarSystemEnergyPlanRepository.findById(solarSystemEnergyPlanDto.getId())
+                    .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+                            "Solar system energy plan with ID [" + solarSystemEnergyPlanDto.getId() + "] not found."));
+            if (!solarSystem.equals(solarSystemEnergyPlan.getSolarSystem())) {
+                throw new ApplicationException(HttpStatus.BAD_REQUEST,
+                        "Solar system energy plan with ID [" + solarSystemEnergyPlanDto.getId() + "] does not belong to solar system with ID [" + solarSystemId + "].");
+            }
+            solarSystemEnergyPlan.setStartDate(solarSystemEnergyPlanDto.getStartDate());
+            solarSystemEnergyPlan.setEndDate(solarSystemEnergyPlanDto.getEndDate());
+            solarSystemEnergyPlanRepository.save(solarSystemEnergyPlan);
+            return;
+        }
+
+        if (solarSystemEnergyPlanDto.getEnergyPlan() == null
+                || solarSystemEnergyPlanDto.getEnergyPlan().getId() == null) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST, "Energy plan is required.");
+        }
+
+        EnergyPlan energyPlan = energyPlanRepository.findById(solarSystemEnergyPlanDto.getEnergyPlan().getId())
+                .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+                        "Energy plan with ID [" + solarSystemEnergyPlanDto.getEnergyPlan().getId() + "] not found."));
+
+        SolarSystemEnergyPlan solarSystemEnergyPlan = new SolarSystemEnergyPlan();
+        solarSystemEnergyPlan.setSolarSystem(solarSystem);
+        solarSystemEnergyPlan.setEnergyPlan(energyPlan);
+        solarSystemEnergyPlan.setStartDate(solarSystemEnergyPlanDto.getStartDate());
+        solarSystemEnergyPlan.setEndDate(solarSystemEnergyPlanDto.getEndDate());
+        solarSystemEnergyPlan.setIncludeInRevenueCalculation(Boolean.TRUE);
+        solarSystemEnergyPlanRepository.save(solarSystemEnergyPlan);
+    }
+
+    @Override
+    public void deleteSolarSystemEnergyPlan(Principal principal, Long solarSystemId, Long solarSystemEnergyPlanId) {
+        SolarSystem solarSystem = getSolarSystem(solarSystemId);
+        SolarSystemEnergyPlan solarSystemEnergyPlan = solarSystemEnergyPlanRepository.findById(solarSystemEnergyPlanId)
+                .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+                        "Solar system energy plan with ID [" + solarSystemEnergyPlanId + "] not found."));
+
+        if (!solarSystem.equals(solarSystemEnergyPlan.getSolarSystem())) {
+            throw new ApplicationException(HttpStatus.BAD_REQUEST,
+                    "Solar system energy plan with ID [" + solarSystemEnergyPlanId + "] does not belong to solar system with ID [" + solarSystemId + "].");
+        }
+
+        solarSystemEnergyPlanRepository.delete(solarSystemEnergyPlan);
     }
 
     @Override

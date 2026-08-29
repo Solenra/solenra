@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.solenra.server.model.SolarSystemDto;
+import com.github.solenra.server.model.SolarSystemEnergyPlanDto;
 import com.github.solenra.server.model.SystemEnergyDetailsDto;
 import com.github.solenra.server.model.SystemEnergyDetailsRevenueDto;
 import com.github.solenra.server.service.SolarSystemService;
@@ -119,6 +120,18 @@ public class SolarSystemController {
         Pageable pageable = PageRequest.of(pageIndex, pageSize, orders.isEmpty() ? Sort.unsorted() : Sort.by(orders));
 
         return solarSystemService.searchSystemEnergyDetailsRevenue(principal, solarSystemId, pageable);
+    }
+
+    @PostMapping("{id}/energy-plans")
+    public ResponseEntity<?> saveEnergyPlan(Principal principal, @PathVariable Long id, @RequestBody SolarSystemEnergyPlanDto solarSystemEnergyPlan) {
+        solarSystemService.saveSolarSystemEnergyPlan(principal, id, solarSystemEnergyPlan);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("{id}/energy-plans/{energyPlanId}")
+    public ResponseEntity<?> deleteEnergyPlan(Principal principal, @PathVariable Long id, @PathVariable Long energyPlanId) {
+        solarSystemService.deleteSolarSystemEnergyPlan(principal, id, energyPlanId);
+        return ResponseEntity.noContent().build();
     }
 
 }

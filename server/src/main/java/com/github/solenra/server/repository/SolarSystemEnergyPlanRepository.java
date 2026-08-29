@@ -51,4 +51,6 @@ public interface SolarSystemEnergyPlanRepository extends JpaRepository<SolarSyst
             @Param("solarSystem") SolarSystem solarSystem
     );
 
+    boolean existsBySolarSystemSolarSystemIntegrationsId(long solarSystemIntegrationId);
+
 }

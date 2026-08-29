@@ -24,10 +24,10 @@
 </div>
 <div mat-dialog-actions align="end">
   @if (data.cancelLabel) {
-    <button type="button" mat-raised-button class="underline-text-onhover" matDialogClose>{{data.cancelLabel}}</button>
+    <button type="button" mat-stroked-button class="underline-text-onhover" matDialogClose>{{data.cancelLabel}}</button>
   }
   @if (confirmButtonText && data.confirmEventEmit) {
-  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirmColour"
+  <button type="button" mat-stroked-button class="underline-text-onhover" [color]="data.confirmColour"
     (click)="this.confirmEvent()"
     [disabled]="isConfirmButtonDisabled">
     @if (data.confirmIcon) {
@@ -36,7 +36,7 @@
   </button>
 }
 @if (confirmButtonText && !data.confirmEventEmit) {
-  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirmColour"
+  <button type="button" mat-stroked-button class="underline-text-onhover" [color]="data.confirmColour"
     (click)="this.confirmEvent()"
     [disabled]="isConfirmButtonDisabled"
     matDialogClose>
@@ -46,7 +46,7 @@
   </button>
 }
 @if (confirm2ButtonText) {
-  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirm2Colour"
+  <button type="button" mat-stroked-button class="underline-text-onhover" [color]="data.confirm2Colour"
     (click)="this.confirm2Event()"
     [disabled]="isConfirm2ButtonDisabled"
     [matDialogClose]="!data.confirm2EventEmit">
@@ -56,7 +56,7 @@
   </button>
 }
 @if (confirm3ButtonText) {
-  <button type="button" mat-raised-button class="underline-text-onhover" [color]="data.confirm3Colour"
+  <button type="button" mat-stroked-button class="underline-text-onhover" [color]="data.confirm3Colour"
     (click)="this.confirm3Event()"
     [disabled]="isConfirm3ButtonDisabled"
     [matDialogClose]="!data.confirm3EventEmit">

@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.github.solenra.server.model.SolarSystemDto;
+import com.github.solenra.server.model.SolarSystemEnergyPlanDto;
 import com.github.solenra.server.model.SystemEnergyDetailsDto;
 import com.github.solenra.server.model.SystemEnergyDetailsRevenueDto;
 
@@ -29,5 +30,9 @@ public interface SolarSystemService {
     void deleteSolarSystemIntegration(Principal principal, Long id, String code);
 
     void setSolarSystemIntegrationStatus(Principal principal, Long solarSystemId, String integrationCode, String statusCode);
+
+    void saveSolarSystemEnergyPlan(Principal principal, Long solarSystemId, SolarSystemEnergyPlanDto solarSystemEnergyPlan);
+
+    void deleteSolarSystemEnergyPlan(Principal principal, Long solarSystemId, Long solarSystemEnergyPlanId);
 
 }

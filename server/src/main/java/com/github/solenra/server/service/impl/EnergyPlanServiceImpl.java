@@ -82,6 +82,13 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
     public void updateEnergyPlanRevenueCalculationNewTransaction(long solarSystemIntegrationId) {
         logger.debug("Calculating energy plan revenue for solarSystemIntegrationId: {}", solarSystemIntegrationId);
 
+        // if no energy plans are found, skip the calculation
+        if (!solarSystemEnergyPlanRepository.existsBySolarSystemSolarSystemIntegrationsId(solarSystemIntegrationId)) {
+        logger.debug("Skipping calculation, no energy plan found for solarSystemIntegrationId: {}", solarSystemIntegrationId);
+            return;
+        }
+
+
         // Reprocess missing records that may have been deleted due to energy plan changes
         List<SystemEnergyDetails> systemEnergyDetailsToRecalculate = systemEnergyDetailsRepository.findAllBySolarSystemIntegrationIdAndSystemEnergyDetailsRevenuesIsEmpty(solarSystemIntegrationId);
         logger.debug("Found [{}] SystemEnergyDetails records to recalculate for solarSystemIntegrationId: [{}]", systemEnergyDetailsToRecalculate.size(), solarSystemIntegrationId);

@@ -10,8 +10,8 @@
     <input matInput [formControl]="searchForm.controls['nameLike'] | formControl" (keyup.enter)="doFilter()">
   </mat-form-field>
 
-  <button type="button" mat-raised-button color="primary" (click)="doFilter()" [disabled]="!searchForm.valid">Filter</button>
-  <button type="button" mat-raised-button (click)="resetForm()">Reset</button>
+  <button type="button" mat-stroked-button color="primary" (click)="doFilter()" [disabled]="!searchForm.valid">Filter</button>
+  <button type="button" mat-stroked-button (click)="resetForm()">Reset</button>
 </div>
 
 <div class="data-table-container mat-elevation-z8">
