@@ -86,8 +86,8 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         // 3 - update status to CALCULATED
 
         // get energy plans and calculate savings
-        List<SolarSystemEnergyPlan> solarSystemEnergyPlans = solarSystemEnergyPlanRepository.findAllBySolarSystemId(solarSystemIntegrationId);
-        logger.debug("Found [{}] energy plans to calculate for solarSystemIntegrationId [{}]", solarSystemEnergyPlans.size(), solarSystemIntegrationId);
+        List<SolarSystemEnergyPlan> solarSystemEnergyPlans = solarSystemEnergyPlanRepository.findAllBySolarSystemId(solarSystem.getId());
+        logger.debug("Found [{}] energy plans to calculate for solarSystemId [{}]", solarSystemEnergyPlans.size(), solarSystem.getId());
 
         for (SolarSystemEnergyPlan solarSystemEnergyPlan : solarSystemEnergyPlans) {
 
