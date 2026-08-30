@@ -461,13 +461,27 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
 
         forkJoin(requests).subscribe({
           next: () => this.loadSolarSystem(true),
-          error: (err: any) => console.error('Error importing solar system energy plans:', err)
+          error: (err: any) => {
+            console.error('Error importing solar system energy plans:', err);
+            this.showErrorDialog(err?.message || 'Unable to import the energy plans CSV.');
+          }
         });
       } catch (err) {
         console.error('Energy plans CSV import error:', err);
+        this.showErrorDialog(err instanceof Error ? err.message : 'Unable to import the energy plans CSV.');
       }
     };
     reader.readAsText(file);
+  }
+
+  private showErrorDialog(message: string): void {
+    this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Import Error',
+        text: message,
+        confirmLabel: 'OK'
+      }
+    });
   }
 
   private parseEnergyPlansCsv(csv: string): Array<{energyPlanId: number; startDate: string; endDate?: string}> {
@@ -477,8 +491,8 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
     }
 
     const header = this.parseCsvLine(lines[0]).map(value => value.trim().toLowerCase());
-    if (header.join(',') !== 'id,startdate,enddate') {
-      throw new Error('CSV must contain the columns id, startDate, and endDate.');
+    if (header.join(',') !== 'energyPlanId,startdate,enddate') {
+      throw new Error('CSV must contain the columns energyPlanId, startDate, and endDate.');
     }
 
     return lines.slice(1).map((line, index) => {
