@@ -87,8 +87,10 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
 
         // get energy plans and calculate savings
         List<SolarSystemEnergyPlan> solarSystemEnergyPlans = solarSystemEnergyPlanRepository.findAllBySolarSystemId(solarSystemIntegrationId);
+        logger.debug("Found [{}] energy plans to calculate for solarSystemIntegrationId [{}]", solarSystemEnergyPlans.size(), solarSystemIntegrationId);
 
         for (SolarSystemEnergyPlan solarSystemEnergyPlan : solarSystemEnergyPlans) {
+
             SolarSystemEnergyPlanDto planCumulativeRevenue = systemEnergyDetailsRevenueRepository.sumFieldsBySolarSystemEnergyPlan(
                     solarSystemEnergyPlan.getSolarSystem(), solarSystemEnergyPlan.getEnergyPlan()
             );
@@ -129,6 +131,8 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
                     solarSystemEnergyPlan.setRoiAnnualised(planRoiAnnualised);
                 }
             }
+
+            logger.debug("Savings calculated for energy plan [{}]: [{}]", solarSystemEnergyPlan.getEnergyPlan().getName(), solarSystemEnergyPlan.getCalculatedSavings());
 
             solarSystemEnergyPlan = solarSystemEnergyPlanRepository.save(solarSystemEnergyPlan);
         }
@@ -194,7 +198,7 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
 
         solarSystem = solarSystemRepository.save(solarSystem);
 
-        recalculateSolarSystemRevenue(solarSystem.getId());
+        recalculateSolarSystemRevenue(solarSystem.getId()); // TODO use below quartz job instead
 
         //recalculateSolarSystem = true;
 
@@ -216,6 +220,8 @@ public class EnergyPlanServiceImpl implements EnergyPlanService {
         });
 
         List<SolarSystemEnergyPlan> solarSystemEnergyPlans = solarSystemEnergyPlanRepository.findAllBySolarSystemAndIncludeInRevenueCalculation(solarSystem, true);
+
+        logger.debug("Found [{}] energy plans to include in calculation for solarSystemId [{}]", solarSystemEnergyPlans.size(), solarSystemId);
 
         BigDecimal cumulativeSupplyCost = BigDecimal.ZERO;
         BigDecimal cumulativeImportCost = BigDecimal.ZERO;
