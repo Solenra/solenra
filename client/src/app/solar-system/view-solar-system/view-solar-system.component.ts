@@ -491,7 +491,7 @@ export class ViewSolarSystemComponent implements OnInit, OnDestroy {
     }
 
     const header = this.parseCsvLine(lines[0]).map(value => value.trim().toLowerCase());
-    if (header.join(',') !== 'energyPlanId,startdate,enddate') {
+    if (header.join(',') !== 'energyplanid,startdate,enddate') {
       throw new Error('CSV must contain the columns energyPlanId, startDate, and endDate.');
     }
 
