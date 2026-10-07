@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, ChangeDetectionStrategy} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {AuditLogComponent} from '../audit-log/audit-log.component';
 import {MaterialModule} from '../../../material.module';
@@ -10,6 +10,7 @@ import {MaterialModule} from '../../../material.module';
     MaterialModule,
     AuditLogComponent
 ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./audit-log-dialog.component.css']
 })
 export class AuditLogDialogComponent {

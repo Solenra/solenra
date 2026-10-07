@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {SchedulerService} from '../../core/service/scheduler.service';
 import {Scheduler} from '../../core/model/scheduler';
 import {MaterialModule} from '../../material.module';
@@ -16,6 +16,7 @@ import {PageHeaderComponent} from '../../core/component/page-header/page-header.
     PageHeaderComponent
   ],
   templateUrl: './schedulers.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './schedulers.component.css'
 })
 export class SchedulersComponent implements OnInit {

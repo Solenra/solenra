@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 import {MaterialModule} from '../../../material.module';
@@ -11,6 +11,7 @@ import {SafeHtmlPipe} from '../../pipe/safe-html.pipe';
     MaterialModule,
     SafeHtmlPipe
 ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./confirmation-dialog.component.css']
 })
 export class ConfirmationDialogComponent implements OnInit {

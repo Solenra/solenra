@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormControlPipe } from '../../core/pipe/form-control.pipe';
@@ -18,6 +18,7 @@ import { PageHeaderComponent } from '../../core/component/page-header/page-heade
     PageHeaderComponent
   ],
   templateUrl: './registration.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './registration.component.css'
 })
 export class RegistrationComponent implements OnInit {

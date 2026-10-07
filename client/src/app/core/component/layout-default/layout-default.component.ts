@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {MenuItemsComponent} from '../menu-items/menu-items.component';
 import {MaterialModule} from '../../../material.module';
@@ -11,6 +11,7 @@ import {MaterialModule} from '../../../material.module';
     MenuItemsComponent
 ],
   templateUrl: './layout-default.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './layout-default.component.css'
 })
 export class LayoutDefaultComponent {

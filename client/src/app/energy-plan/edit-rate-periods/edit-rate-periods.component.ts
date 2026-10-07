@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent } from '../../core/component/confirmation-d
   selector: 'app-edit-rate-periods',
   imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, PageHeaderComponent],
   templateUrl: './edit-rate-periods.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./edit-rate-periods.component.css'],
 })
 export class EditRatePeriodsComponent implements OnInit {

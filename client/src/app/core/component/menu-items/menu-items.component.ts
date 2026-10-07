@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatTreeNestedDataSource} from '@angular/material/tree';
 import {CommonModule} from '@angular/common';
 import {IdentityService} from '../../service/identity.service';
@@ -74,6 +74,7 @@ const ADMIN_MENU: MenuItem = {
     RouterLinkActive
   ],
   templateUrl: './menu-items.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './menu-items.component.css'
 })
 export class MenuItemsComponent implements OnInit {

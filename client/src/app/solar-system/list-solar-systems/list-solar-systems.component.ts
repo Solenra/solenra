@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {SolarSystem} from '../../core/model/solar-system';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
@@ -29,6 +29,7 @@ import { EditFieldsDialogComponent } from '../../core/component/edit-fields-dial
     PageHeaderComponent
   ],
   templateUrl: './list-solar-systems.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './list-solar-systems.component.css'
 })
 export class ListSolarSystemsComponent implements OnInit, AfterViewInit, OnDestroy {

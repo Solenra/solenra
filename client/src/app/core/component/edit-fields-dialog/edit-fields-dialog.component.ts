@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, EventEmitter, Inject, OnInit } from '@angular/core';
+import { AfterContentInit, Component, EventEmitter, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from "@angular/material/dialog";
@@ -23,6 +23,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatCheckboxModule
   ],
   templateUrl: './edit-fields-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./edit-fields-dialog.component.css']
 })
 export class EditFieldsDialogComponent implements OnInit, AfterContentInit {

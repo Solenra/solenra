@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
     RouterModule,
   ],
   templateUrl: './index.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './index.component.css'
 })
 export class IndexComponent implements OnInit {

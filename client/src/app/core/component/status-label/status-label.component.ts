@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {SolarSystemIntegration, Status} from '../../model/solar-system';
 import {MaterialModule} from '../../../material.module';
 import {CommonModule} from '@angular/common';
@@ -10,6 +10,7 @@ import {CommonModule} from '@angular/common';
     MaterialModule,
     CommonModule
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./status-label.component.css']
 })
 export class StatusLabelComponent implements OnInit {

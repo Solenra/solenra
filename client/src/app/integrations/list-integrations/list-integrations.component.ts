@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -26,6 +26,7 @@ import { IntegrationService } from '../../core/service/integration.service';
     PageHeaderComponent
   ],
   templateUrl: './list-integrations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './list-integrations.component.css',
 })
 export class ListIntegrationsComponent implements OnInit {

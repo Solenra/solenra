@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,6 +39,7 @@ import { ConfirmationDialogComponent } from '../../core/component/confirmation-d
     PageHeaderComponent
   ],
   templateUrl: './list-energy-plans.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./list-energy-plans.component.css']
 })
 export class ListEnergyPlansComponent implements OnInit {

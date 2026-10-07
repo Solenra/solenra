@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {MaterialModule} from '../../material.module';
 
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -25,6 +25,7 @@ import {AuditLogDialogComponent} from '../../core/component/audit-log-dialog/aud
     RouterLink
 ],
   templateUrl: './list-energy.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './list-energy.component.css'
 })
 export class ListEnergyComponent implements OnInit, AfterViewInit, OnDestroy {

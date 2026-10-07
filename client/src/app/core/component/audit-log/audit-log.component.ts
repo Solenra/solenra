@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {AuditLog} from '../../model/audit-log';
@@ -18,6 +18,7 @@ import {StatusLabelComponent} from '../status-label/status-label.component';
     DatePipe,
     StatusLabelComponent
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./audit-log.component.css']
 })
 export class AuditLogComponent implements AfterViewInit {

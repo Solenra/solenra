@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {IdentityService} from '../../core/service/identity.service';
@@ -16,6 +16,7 @@ import {FormControlPipe} from '../../core/pipe/form-control.pipe';
     FormControlPipe
 ],
   templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {

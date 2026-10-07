@@ -1,11 +1,11 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {SolarSystemService} from '../../core/service/solar-system.service';
 import {forkJoin, interval, Subscription} from 'rxjs';
 import {Integration, SolarSystem} from '../../core/model/solar-system';
 import {ApiPage} from '../../core/model/api-page';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {UIChart} from 'primeng/chart';
+import { ChartModule } from '@openng/optimus-ui/chart';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {StatusLabelComponent} from '../../core/component/status-label/status-label.component';
 import {MatCardModule} from '@angular/material/card';
@@ -23,7 +23,7 @@ import {EnergyPlanService} from '../../core/service/energy-plan.service';
   imports: [
     MatExpansionModule,
     RouterLink,
-    UIChart,
+    ChartModule,
     DatePipe,
     DecimalPipe,
     StatusLabelComponent,
@@ -33,6 +33,7 @@ import {EnergyPlanService} from '../../core/service/energy-plan.service';
     MatButtonModule
   ],
   templateUrl: './view-solar-system.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './view-solar-system.component.css'
 })
 export class ViewSolarSystemComponent implements OnInit, OnDestroy {

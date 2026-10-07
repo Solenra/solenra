@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogRef,
@@ -16,6 +16,7 @@ import {RouterLink} from '@angular/router';
     RouterLink
   ],
   templateUrl: './server-error.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './server-error.component.css'
 })
 export class ServerErrorComponent implements OnInit {
