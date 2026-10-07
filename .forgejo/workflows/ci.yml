@@ -20,6 +20,8 @@ jobs:
 
       - name: Set up Chrome
         uses: https://github.com/browser-actions/setup-chrome@v1
+        with:
+          install-dependencies: true
 
       - name: Install client dependencies
         working-directory: client
