@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { EditRatePeriodsComponent } from './edit-rate-periods.component';
 
@@ -8,7 +9,8 @@ describe('EditRatePeriodsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditRatePeriodsComponent]
+      imports: [EditRatePeriodsComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { provideRouter } from '@angular/router';
 
 import { ServerErrorComponent } from './server-error.component';
 
@@ -8,7 +10,12 @@ describe('ServerErrorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ServerErrorComponent]
+      imports: [ServerErrorComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } },
+        { provide: MAT_DIALOG_DATA, useValue: { message: '', error: { status: 0, error: {} } } }
+      ]
     })
     .compileComponents();
 

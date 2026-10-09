@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { ListEnergyComponent } from './list-energy.component';
 
@@ -8,7 +9,8 @@ describe('ListEnergyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListEnergyComponent]
+      imports: [ListEnergyComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 

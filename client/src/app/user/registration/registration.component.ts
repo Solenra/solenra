@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormControlPipe } from '../../core/pipe/form-control.pipe';
@@ -21,7 +21,7 @@ import { PageHeaderComponent } from '../../core/component/page-header/page-heade
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './registration.component.css'
 })
-export class RegistrationComponent implements OnInit {
+export class RegistrationComponent {
   
   formGroup: any;
   hasTermsAndConditions = false;
@@ -38,10 +38,6 @@ export class RegistrationComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(8)]],
       acceptance: ['', [Validators.required, Validators.requiredTrue]]
    });
-  }
-
-  ngOnInit(): void {
-    throw new Error('Method not implemented.');
   }
 
   openTermsAndConditions() {

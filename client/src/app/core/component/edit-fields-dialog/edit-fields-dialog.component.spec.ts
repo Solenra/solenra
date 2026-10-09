@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { EditFieldsDialogComponent } from './edit-fields-dialog.component';
 
@@ -8,7 +9,11 @@ describe('EditFieldsDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EditFieldsDialogComponent]
+      imports: [EditFieldsDialogComponent],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } },
+        { provide: MAT_DIALOG_DATA, useValue: { formData: {}, formFields: [], saveButtonLabel: 'Save' } }
+      ]
     });
     fixture = TestBed.createComponent(EditFieldsDialogComponent);
     component = fixture.componentInstance;

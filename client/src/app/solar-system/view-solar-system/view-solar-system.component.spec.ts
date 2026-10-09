@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { ViewSolarSystemComponent } from './view-solar-system.component';
 
@@ -8,7 +9,8 @@ describe('ViewSolarSystemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewSolarSystemComponent]
+      imports: [ViewSolarSystemComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 

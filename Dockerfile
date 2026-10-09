@@ -6,7 +6,7 @@
 ############################
 # 1) Build Angular (cached)
 ############################
-FROM node:20 AS angular-build
+FROM node:26 AS angular-build
 
 WORKDIR /client
 
